@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>transformation_graph &mdash; GDM 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> GDM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../coordinate_systems.html">Coordinate Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../file_formats.html">File Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input_specification.html">Input specification via Transformation Graph Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../output_specification.html">Output Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../todo.html">Work in progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">GDM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      <li>transformation_graph</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for transformation_graph</h1><div class="highlight"><pre>
+<span></span><span class="c1"># %%</span>
+<span class="kn">import</span> <span class="nn">emlddmm</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">RawTextHelpFormatter</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="s1">&#39;cuda:0&#39;</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="s1">&#39;cpu&#39;</span>
+<span class="n">dtype</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">float</span>
+
+<span class="c1"># %%</span>
+
+<div class="viewcode-block" id="add_edge"><a class="viewcode-back" href="../transformation_graph.html#transformation_graph.add_edge">[docs]</a><span class="k">def</span> <span class="nf">add_edge</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">spaces</span><span class="p">,</span> <span class="n">src_space</span><span class="p">,</span> <span class="n">dest_space</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">slice_matching</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Add edge between two vertices in registration adjacency list.</span>
+
+<span class="sd">    Adds the key:value pair, dest_space:(&#39;path/to/tranforms&#39;, &#39;direction&#39;) to the dict corresponding to source space in the adjacency list.</span>
+<span class="sd">    The adjacency list (adj) has the form [{src_space_1 dict}, ..., {src_space_n dict}] for n source spaces.</span>
+<span class="sd">    Each source space dict has the form {dest_space_1: (&#39;path/to/transforms_1&#39;, &#39;direction&#39;), ..., dest_space_n: (&#39;path/to/transforms_n&#39;, &#39;direction}</span>
+<span class="sd">    which indicates the spaces to which the source space were registered, and the location of transforms corresponding to that registration.</span>
+<span class="sd">    For each registration both the forward and backward transformation is recorded in the list. e.g. [{space_1: (&#39;space_0_to_space_1/transforms&#39;, &#39;f&#39;)}, {space_0: (&#39;space_0_to_space_1/transforms&#39;, &#39;b&#39;)}</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    adj : list of dicts</span>
+<span class="sd">        adjacency list of transformations between spaces</span>
+<span class="sd">    spaces: dict</span>
+<span class="sd">        user assigned space name strings each assigned an integer value as a key:value pair in a dictionary</span>
+<span class="sd">    src_space: str</span>
+<span class="sd">        user assigned source space name</span>
+<span class="sd">    dest_space: str</span>
+<span class="sd">        user assigned destination space name</span>
+<span class="sd">    out: str</span>
+<span class="sd">        path to registration outputs</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; spaces = {&#39;HIST&#39;: 0, &#39;MRI&#39;: 1, &#39;CCF&#39;: 2, &#39;CT&#39;: 3}</span>
+<span class="sd">    &gt;&gt;&gt; adj = [{} for i in range(len(spaces))]</span>
+
+<span class="sd">    &gt;&gt;&gt; print(adj)</span>
+<span class="sd">    [{}, {}, {}, {}]</span>
+
+<span class="sd">    &gt;&gt;&gt; add_edge(adj, spaces, &#39;MRI&#39;, &#39;CCF&#39;, &#39;outputs&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; print(adj)</span>
+<span class="sd">    [{}, {2: (&#39;outputs/CCF/MRI_to_CCF/&#39;, &#39;f&#39;)}, {1: (&#39;outputs/CCF/MRI_to_CCF/&#39;, &#39;b&#39;)}, {}]</span>
+
+<span class="sd">    &gt;&gt;&gt; add_edge(adj, spaces, &#39;HIST&#39;, &#39;MRI&#39;, &#39;outputs&#39;, slice_matching=True)</span>
+<span class="sd">    &gt;&gt;&gt; print(adj)</span>
+<span class="sd">    [{1: (&#39;outputs/MRI/HIST_REGISTERED_to_MRI/&#39;, &#39;f&#39;)}, {2: (&#39;outputs/CCF/MRI_to_CCF/&#39;, &#39;f&#39;), 0: (&#39;outputs/MRI/HIST_REGISTERED_to_MRI/&#39;, &#39;b&#39;)}, {1: (&#39;outputs/CCF/MRI_to_CCF/&#39;, &#39;b&#39;)}, {}]</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span> 
+    <span class="k">if</span> <span class="n">slice_matching</span><span class="p">:</span>
+        <span class="n">transforms_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_REGISTERED_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">transforms_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">)</span>
+
+    <span class="n">adj</span><span class="p">[</span><span class="n">spaces</span><span class="p">[</span><span class="n">src_space</span><span class="p">]][</span><span class="n">spaces</span><span class="p">[</span><span class="n">dest_space</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="n">transforms_path</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+    <span class="n">adj</span><span class="p">[</span><span class="n">spaces</span><span class="p">[</span><span class="n">dest_space</span><span class="p">]][</span><span class="n">spaces</span><span class="p">[</span><span class="n">src_space</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="n">transforms_path</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BFS"><a class="viewcode-back" href="../transformation_graph.html#transformation_graph.BFS">[docs]</a><span class="k">def</span> <span class="nf">BFS</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">dist</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Breadth first search</span>
+
+<span class="sd">    a modified version of BFS that stores predecessor</span>
+<span class="sd">    of each vertex in array pred and its distance from source in array dist</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    adj : list of dicts</span>
+<span class="sd">        adjacency list of transformations between spaces</span>
+<span class="sd">    src: int</span>
+<span class="sd">        int value given by corresponding source in spaces dict</span>
+<span class="sd">    dest: int </span>
+<span class="sd">        dest value given by corresponding destination in spaces dict</span>
+<span class="sd">    v: int</span>
+<span class="sd">        length of spaces dict</span>
+<span class="sd">    pred: list of ints</span>
+<span class="sd">        stores predecessor of vertex i at pred[i]</span>
+<span class="sd">    dist: list of ints</span>
+<span class="sd">        stores distance (by number of vertices) of vertex i from source vertex</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if a path from src to dest is found and False otherwise</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+ 
+
+    <span class="n">queue</span> <span class="o">=</span> <span class="p">[]</span>
+  
+    <span class="n">visited</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span>
+    <span class="c1"># for each space we initialize the distance from src to be a large number and the predecessor to be -1</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+ 
+        <span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1000000</span>
+        <span class="n">pred</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+     
+    <span class="c1"># visit source first. Distance from source to itself is 0</span>
+    <span class="n">visited</span><span class="p">[</span><span class="n">src</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">dist</span><span class="p">[</span><span class="n">src</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+  
+    <span class="c1"># BFS algorithm</span>
+    <span class="k">while</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">queue</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">queue</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">queue</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">adj</span><span class="p">[</span><span class="n">u</span><span class="p">])):</span>
+         
+            <span class="k">if</span> <span class="p">(</span><span class="n">visited</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">adj</span><span class="p">[</span><span class="n">u</span><span class="p">])[</span><span class="n">i</span><span class="p">]]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="n">visited</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">adj</span><span class="p">[</span><span class="n">u</span><span class="p">])[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">dist</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">adj</span><span class="p">[</span><span class="n">u</span><span class="p">])[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">dist</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">pred</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">adj</span><span class="p">[</span><span class="n">u</span><span class="p">])[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">u</span>
+                <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">adj</span><span class="p">[</span><span class="n">u</span><span class="p">])[</span><span class="n">i</span><span class="p">])</span>
+  
+                <span class="c1"># We stop BFS when we find</span>
+                <span class="c1"># destination.</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">adj</span><span class="p">[</span><span class="n">u</span><span class="p">])[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">dest</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+  
+    <span class="k">return</span> <span class="kc">False</span></div>
+  
+  
+<div class="viewcode-block" id="find_shortest_path"><a class="viewcode-back" href="../transformation_graph.html#transformation_graph.find_shortest_path">[docs]</a><span class="k">def</span> <span class="nf">find_shortest_path</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Find Shortest Path</span>
+
+<span class="sd">    Finds the shortest path between src and dest in the adjacency list and prints its length</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    adj : list of dicts</span>
+<span class="sd">        adjacency list of transformations between spaces</span>
+<span class="sd">    src: int</span>
+<span class="sd">        int value given by corresponding source in spaces dict</span>
+<span class="sd">    dest: int </span>
+<span class="sd">        dest value given by corresponding destination in spaces dict</span>
+<span class="sd">    v: int</span>
+<span class="sd">        length of spaces dict</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    path : list of ints</span>
+<span class="sd">        path from src to dest using integer values of the adjacency list vertices. Integers can be converted to space names by the spaces dict.</span>
+
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; adj = [{1: (&#39;outputs/MRI/HIST_REGISTERED_to_MRI/&#39;, &#39;f&#39;)},</span>
+<span class="sd">    ...        {2: (&#39;outputs/CCF/MRI_to_CCF/&#39;, &#39;f&#39;), 0: (&#39;outputs/MRI/HIST_REGISTERED_to_MRI/&#39;, &#39;b&#39;)},</span>
+<span class="sd">    ...        {1: (&#39;outputs/CCF/MRI_to_CCF/&#39;, &#39;b&#39;)},</span>
+<span class="sd">    ...        {}]</span>
+<span class="sd">    &gt;&gt;&gt; path = find_shortest_path(adj, 0, 2, 4)</span>
+<span class="sd">    Shortest path length is: 2</span>
+
+<span class="sd">    &gt;&gt;&gt; print(path)</span>
+<span class="sd">    [0,1,2]</span>
+
+<span class="sd">    &gt;&gt;&gt; path = transformation_graph.find_shortest_path(adj, 0, 3, 4)</span>
+<span class="sd">    Given source and destination are not connected</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+     
+    <span class="n">pred</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span> <span class="c1"># predecessor of space i in path from src to dest</span>
+    <span class="n">dist</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span> <span class="c1"># distance of vertex i by number of vertices from src</span>
+  
+    <span class="k">if</span> <span class="p">(</span><span class="n">BFS</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Given source and destination are not connected&quot;</span><span class="p">)</span>
+        
+    <span class="c1"># path stores the shortest path</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">crawl</span> <span class="o">=</span> <span class="n">dest</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">crawl</span><span class="p">)</span>
+     
+    <span class="k">while</span> <span class="p">(</span><span class="n">pred</span><span class="p">[</span><span class="n">crawl</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pred</span><span class="p">[</span><span class="n">crawl</span><span class="p">])</span>
+        <span class="n">crawl</span> <span class="o">=</span> <span class="n">pred</span><span class="p">[</span><span class="n">crawl</span><span class="p">]</span>
+     
+    <span class="n">path</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># distance from source is in distance array</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shortest path length is: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dist</span><span class="p">[</span><span class="n">dest</span><span class="p">]),</span> <span class="n">end</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">path</span></div>
+
+
+<div class="viewcode-block" id="get_transformation"><a class="viewcode-back" href="../transformation_graph.html#transformation_graph.get_transformation">[docs]</a><span class="k">def</span> <span class="nf">get_transformation</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get Transformation</span>
+
+<span class="sd">    Gets file path or paths to the transforms needed to match src to dest</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    adj : list of dicts</span>
+<span class="sd">        adjacency list of transformations between spaces</span>
+<span class="sd">    path : list of ints</span>
+<span class="sd">        path from src to dest using integer values of the adjacency list vertices. Integers can be converted to space names by the spaces dict.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    transformation : list of strings</span>
+<span class="sd">        list of file paths to sequence of transformations matching src to dest</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; adj = [{1: (&#39;outputs/MRI/HIST_REGISTERED_to_MRI/&#39;, &#39;f&#39;)},</span>
+<span class="sd">    ...        {2: (&#39;outputs/CCF/MRI_to_CCF/&#39;, &#39;f&#39;), 0: (&#39;outputs/MRI/HIST_REGISTERED_to_MRI/&#39;, &#39;b&#39;)},</span>
+<span class="sd">    ...        {1: (&#39;outputs/CCF/MRI_to_CCF/&#39;, &#39;b&#39;)},</span>
+<span class="sd">    ...        {}]</span>
+<span class="sd">    &gt;&gt;&gt; path = [0,1,2]</span>
+<span class="sd">    &gt;&gt;&gt; transformation = get_transformation(adj, path)</span>
+<span class="sd">    &gt;&gt;&gt; print(transformation)</span>
+<span class="sd">    [(&#39;outputs/MRI/HIST_REGISTERED_to_MRI/&#39;, &#39;f&#39;), (&#39;outputs/CCF/MRI_to_CCF/&#39;, &#39;f&#39;)]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">transformation</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">transformation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">adj</span><span class="p">[</span><span class="n">path</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="n">path</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]])</span>
+
+    <span class="k">return</span> <span class="n">transformation</span></div>
+
+
+<div class="viewcode-block" id="reg"><a class="viewcode-back" href="../transformation_graph.html#transformation_graph.reg">[docs]</a><span class="k">def</span> <span class="nf">reg</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">registration</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; registration</span>
+
+<span class="sd">    Registers a single source image and destination image. Affine matrix and velocity field transformations, and qc images are saved.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dest : str</span>
+<span class="sd">        path to destination image</span>
+<span class="sd">    source: str</span>
+<span class="sd">        path to source image or series of images</span>
+<span class="sd">    registration: list</span>
+<span class="sd">        List containing two lists of strings, e.g. [[&quot;src_space&quot;,&quot;src_img&quot;],[&quot;dest_space&quot;,&quot;dest_img&quot;]].</span>
+<span class="sd">        These are used for naming output files.</span>
+<span class="sd">    config: str</span>
+<span class="sd">        path to JSON configuration file specifying registration parameters</span>
+<span class="sd">    out: str</span>
+<span class="sd">        path to output directory</span>
+<span class="sd">    labels: str</span>
+<span class="sd">        path to labels image used for qc</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; dest = &#39;average_template_50.vtk&#39;</span>
+<span class="sd">    &gt;&gt;&gt; source = &#39;HR_NIHxCSHL_50um_14T_M1_masked.vtk&#39;</span>
+<span class="sd">    &gt;&gt;&gt; registration = [[&#39;MRI&#39;,&#39;masked&#39;], [&#39;CCF&#39;,&#39;average_template_50&#39;]]</span>
+<span class="sd">    &gt;&gt;&gt; config = &#39;configMD816_MR_to_CCF.json&#39;</span>
+<span class="sd">    &gt;&gt;&gt; out = &#39;outputs/example_output&#39;</span>
+
+<span class="sd">    &gt;&gt;&gt; reg(dest, source, registration, config, out)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">src_path</span> <span class="o">=</span> <span class="n">source</span>
+    <span class="n">src_space</span> <span class="o">=</span> <span class="n">registration</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">src_img</span> <span class="o">=</span> <span class="n">registration</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">dest_path</span> <span class="o">=</span> <span class="n">dest</span>
+    <span class="n">dest_img</span> <span class="o">=</span> <span class="n">registration</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">dest_space</span> <span class="o">=</span> <span class="n">registration</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">config_file</span> <span class="o">=</span> <span class="n">config</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">out</span> 
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+    <span class="n">label_name</span> <span class="o">=</span> <span class="n">labels</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="c1"># I&#39;m getting this for initial downsampling for preprocessing</span>
+    <span class="n">downIs</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;downI&#39;</span><span class="p">]</span>
+    <span class="n">downJs</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;downJ&#39;</span><span class="p">]</span>
+
+    <span class="c1"># atlas</span>
+    <span class="n">xI</span><span class="p">,</span><span class="n">I</span><span class="p">,</span><span class="n">title</span><span class="p">,</span><span class="n">names</span> <span class="o">=</span> <span class="n">emlddmm</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span><span class="n">dest_path</span><span class="p">)</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">I</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="c1"># normalize</span>
+    <span class="n">I</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">I</span><span class="p">))</span>
+    <span class="n">I</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">)</span>
+
+    <span class="c1"># initial downsampling so there isn&#39;t so much on the gpu</span>
+    <span class="n">mindownI</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">downIs</span><span class="p">),</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">xI</span><span class="p">,</span><span class="n">I</span> <span class="o">=</span> <span class="n">emlddmm</span><span class="o">.</span><span class="n">downsample_image_domain</span><span class="p">(</span><span class="n">xI</span><span class="p">,</span><span class="n">I</span><span class="p">,</span><span class="n">mindownI</span><span class="p">)</span>
+    <span class="n">downIs</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">list</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="o">/</span><span class="n">mindownI</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">downIs</span><span class="p">]</span>
+    <span class="c1"># update our config variable</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;downI&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">downIs</span>
+
+    <span class="c1"># target</span>
+    <span class="n">xJ</span><span class="p">,</span><span class="n">J</span><span class="p">,</span><span class="n">title</span><span class="p">,</span><span class="n">names</span> <span class="o">=</span> <span class="n">emlddmm</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span><span class="n">src_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;mask&#39;</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="n">maskind</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;mask&#39;</span><span class="p">)</span>
+        <span class="n">W0</span> <span class="o">=</span> <span class="n">J</span><span class="p">[</span><span class="n">maskind</span><span class="p">]</span>
+        <span class="n">J</span> <span class="o">=</span> <span class="n">J</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">J</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">!=</span><span class="n">maskind</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">W0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">J</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">J</span> <span class="o">=</span> <span class="n">J</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="c1"># normalize</span>
+    <span class="n">J</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">J</span><span class="p">))</span>
+    <span class="c1"># normJ = np.quantile(J, 0.99)</span>
+    <span class="c1"># J /= normJ</span>
+
+    <span class="c1"># initial downsampling so there isn&#39;t so much on the gpu</span>
+    <span class="n">mindownJ</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">downJs</span><span class="p">),</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">xJ</span><span class="p">,</span><span class="n">J</span> <span class="o">=</span> <span class="n">emlddmm</span><span class="o">.</span><span class="n">downsample_image_domain</span><span class="p">(</span><span class="n">xJ</span><span class="p">,</span><span class="n">J</span><span class="p">,</span><span class="n">mindownJ</span><span class="p">)</span>
+    <span class="n">W0</span> <span class="o">=</span> <span class="n">emlddmm</span><span class="o">.</span><span class="n">downsample</span><span class="p">(</span><span class="n">W0</span><span class="p">,</span><span class="n">mindownJ</span><span class="p">)</span>
+    <span class="n">downJs</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">list</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="o">/</span><span class="n">mindownJ</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">downJs</span><span class="p">]</span>
+    <span class="c1"># update our config variable</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;downJ&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">downJs</span>
+
+    <span class="k">if</span> <span class="s1">&#39;A&#39;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Initial affine: </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span>
+
+    <span class="c1"># if &#39;slice_matching&#39; not in config:</span>
+    <span class="c1">#     # for simplicity I will add a translation manually</span>
+    <span class="c1">#     A[:3, -1] = [-4000, 100, 4000]</span>
+    <span class="c1">#     config[&#39;A&#39;] = A</span>
+
+    <span class="c1"># update sigma factors based on normalization</span>
+    <span class="c1">#if &#39;sigmaR&#39; in config:</span>
+    <span class="c1">#    config[&#39;sigmaR&#39;][0] /= normJ</span>
+    <span class="c1">#if &#39;sigmaA&#39; in config:</span>
+    <span class="c1">#    config[&#39;sigmaA&#39;][0] /= normJ</span>
+    <span class="c1">#if &#39;sigmaB&#39; in config:</span>
+    <span class="c1">#    config[&#39;sigmaB&#39;][0] /= normJ</span>
+    <span class="c1">#if &#39;sigmaM&#39; in config:</span>
+    <span class="c1">#    config[&#39;sigmaM&#39;][0] /= normJ</span>
+
+    <span class="k">if</span> <span class="s1">&#39;device&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;device&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;cuda:0&#39;</span>
+        <span class="c1"># config[&#39;device&#39;] = &#39;cpu&#39;</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">emlddmm</span><span class="o">.</span><span class="n">emlddmm_multiscale</span><span class="p">(</span><span class="n">I</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="n">xI</span><span class="o">=</span><span class="p">[</span><span class="n">xI</span><span class="p">],</span><span class="n">J</span><span class="o">=</span><span class="n">J</span><span class="p">,</span><span class="n">xJ</span><span class="o">=</span><span class="p">[</span><span class="n">xJ</span><span class="p">],</span><span class="n">W0</span><span class="o">=</span><span class="n">W0</span><span class="p">,</span><span class="n">full_outputs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+    <span class="c1">#write outputs</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;saving transformations to &#39;</span> <span class="o">+</span> <span class="n">output_dir</span> <span class="o">+</span> <span class="s1">&#39;...&#39;</span><span class="p">)</span>
+    <span class="n">emlddmm</span><span class="o">.</span><span class="n">write_transform_outputs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">src_space</span><span class="p">,</span> <span class="n">dest_space</span><span class="p">,</span> <span class="n">output</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">src_path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;saving qc to &#39;</span> <span class="o">+</span> <span class="n">output_dir</span> <span class="o">+</span> <span class="s1">&#39;...&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">label_name</span><span class="p">:</span>
+        <span class="c1"># get labels</span>
+        <span class="n">xS</span><span class="p">,</span><span class="n">S</span><span class="p">,</span><span class="n">title</span><span class="p">,</span><span class="n">names</span> <span class="o">=</span> <span class="n">emlddmm</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span><span class="n">label_name</span><span class="p">,</span><span class="n">endian</span><span class="o">=</span><span class="s1">&#39;l&#39;</span><span class="p">)</span>
+        <span class="n">emlddmm</span><span class="o">.</span><span class="n">write_qc_outputs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">src_space</span><span class="p">,</span> <span class="n">src_img</span><span class="p">,</span> <span class="n">dest_space</span><span class="p">,</span> <span class="n">dest_img</span><span class="p">,</span> <span class="n">output</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">xI</span><span class="p">,</span><span class="n">I</span><span class="p">,</span><span class="n">xJ</span><span class="p">,</span><span class="n">J</span><span class="p">,</span><span class="n">xS</span><span class="o">=</span><span class="n">xS</span><span class="p">,</span><span class="n">S</span><span class="o">=</span><span class="n">S</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">emlddmm</span><span class="o">.</span><span class="n">write_qc_outputs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">src_space</span><span class="p">,</span> <span class="n">src_img</span><span class="p">,</span> <span class="n">dest_space</span><span class="p">,</span> <span class="n">dest_img</span><span class="p">,</span> <span class="n">output</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">xI</span><span class="p">,</span><span class="n">I</span><span class="p">,</span><span class="n">xJ</span><span class="p">,</span><span class="n">J</span><span class="p">)</span>
+
+    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="run_registrations"><a class="viewcode-back" href="../transformation_graph.html#transformation_graph.run_registrations">[docs]</a><span class="k">def</span> <span class="nf">run_registrations</span><span class="p">(</span><span class="n">reg_list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Run Registrations</span>
+
+<span class="sd">    Runs a sequence of registrations given by reg_list using reg method, which saves transformations and qc images.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reg_list : list of dicts</span>
+<span class="sd">        each dict in reg_list specifies the source image path, destination image path,</span>
+<span class="sd">        src and dest space names, output directory, and registration configuration settings.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    adj : list of dicts</span>
+<span class="sd">        adjacency list of transformations between spaces</span>
+<span class="sd">    spaces: dict</span>
+<span class="sd">        user assigned space name strings each assigned an integer value as a key:value pair in a dictionary</span>
+<span class="sd">    </span>
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; reg_list = [{&#39;registration&#39;:[[&#39;MRI&#39;,&#39;masked&#39;],[&#39;CCF&#39;,&#39;average_template_50&#39;]],</span>
+<span class="sd">                     &#39;source&#39;: &#39;HR_NIHxCSHL_50um_14T_M1_masked.vtk&#39;,</span>
+<span class="sd">                     &#39;dest&#39;: &#39;average_template_50.vtk&#39;,</span>
+<span class="sd">                     &#39;config&#39;: &#39;configMD816_MR_to_CCF.json&#39;,</span>
+<span class="sd">                     &#39;output&#39;: &#39;outputs/example_output&#39;},</span>
+<span class="sd">                    {&#39;registration&#39;:[[&#39;HIST&#39;,&#39;Nissl&#39;],[&#39;MRI&#39;,&#39;masked&#39;]],</span>
+<span class="sd">                     &#39;source&#39;: &#39;MD816_STIF&#39;,</span>
+<span class="sd">                     &#39;dest&#39;: &#39;HR_NIHxCSHL_50um_14T_M1_masked.vtk&#39;,</span>
+<span class="sd">                     &#39;config&#39;: &#39;configMD816_Nissl_to_MR.json&#39;,</span>
+<span class="sd">                     &#39;output&#39;: &#39;outputs/example_output&#39;}]</span>
+<span class="sd">    &gt;&gt;&gt; adj, spaces = run_registrations(reg_list)</span>
+<span class="sd">    &gt;&gt;&gt; print(adj)</span>
+<span class="sd">    [{1: (&#39;outputs/example_output/CCF/MRI_to_CCF/&#39;, &#39;f&#39;), 2: (&#39;outputs/example_output/MRI/HIST_REGISTERED_to_MRI/&#39;, &#39;b&#39;)},</span>
+<span class="sd">     {0: (&#39;outputs/example_output/CCF/MRI_to_CCF/&#39;, &#39;b&#39;)},</span>
+<span class="sd">     {0: (&#39;outputs/example_output/MRI/HIST_REGISTERED_to_MRI/&#39;, &#39;f&#39;)}]</span>
+
+<span class="sd">    &gt;&gt;&gt; print(spaces)</span>
+<span class="sd">    {&#39;MRI&#39;: 0, &#39;CCF&#39;: 1, &#39;HIST&#39;: 2}</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># input: list of dicts of sources, targets, labels, configs, and the output dir </span>
+    <span class="c1"># Return: adj list, dict of space name keys and node number values</span>
+
+    <span class="c1"># perform registration using reg_list as input</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reg_list</span><span class="p">:</span>
+        <span class="n">dest</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;dest&#39;</span><span class="p">]</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;source&#39;</span><span class="p">]</span>
+        <span class="n">registration</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;registration&#39;</span><span class="p">]</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;config&#39;</span><span class="p">]</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;label_name&#39;</span> <span class="ow">in</span> <span class="n">r</span><span class="p">:</span>
+            <span class="n">label_name</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;label_name&#39;</span><span class="p">]</span>
+            <span class="n">reg</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">registration</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">label_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reg</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">registration</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+         
+    <span class="c1"># construct spaces dict</span>
+    <span class="n">spaces</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">reg_list</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;registration&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;registration&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]]:</span> <span class="c1"># for src and dest space names in each registration</span>
+            <span class="k">if</span> <span class="n">j</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">spaces</span><span class="p">:</span>
+                <span class="n">spaces</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+                <span class="n">v</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">adj</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">spaces</span><span class="p">))]</span>
+
+    <span class="c1"># add edge to adj list</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">reg_list</span><span class="p">)):</span>
+        <span class="n">src_space</span> <span class="o">=</span> <span class="n">reg_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;registration&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">config_file</span> <span class="o">=</span> <span class="n">reg_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;config&#39;</span><span class="p">]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;slice_matching&#39;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span> <span class="c1"># transforms get saved in {src_space}_REGISTERED_to_{dest_space} if slicematching</span>
+            <span class="n">slice_matching</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">slice_matching</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">dest_space</span> <span class="o">=</span> <span class="n">reg_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;registration&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">reg_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
+        <span class="n">add_edge</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">spaces</span><span class="p">,</span> <span class="n">src_space</span><span class="p">,</span> <span class="n">dest_space</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">slice_matching</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">adj</span><span class="p">,</span> <span class="n">spaces</span></div>
+
+
+<div class="viewcode-block" id="apply_transformation"><a class="viewcode-back" href="../transformation_graph.html#transformation_graph.apply_transformation">[docs]</a><span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">spaces</span><span class="p">,</span> <span class="n">src_space</span><span class="p">,</span> <span class="n">src_img</span><span class="p">,</span> <span class="n">dest_space</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">src_path</span><span class="p">,</span> <span class="n">dest_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Apply Transformation</span>
+
+<span class="sd">    Applies affine matrix and velocity field transforms to map dest points to src points. Saves displacement field from dest points to src points</span>
+<span class="sd">    (i.e. difference between transformed coordinates and input coordinates), and determinant of Jacobian for 3d destination spaces. Also saves transformed image in vtk format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    adj: list of dicts</span>
+<span class="sd">        adjacency list of transformations between spaces</span>
+<span class="sd">    spaces: dict</span>
+<span class="sd">        user assigned space name strings each assigned an integer value as a key:value pair in a dictionary</span>
+<span class="sd">    src_space: str</span>
+<span class="sd">        user assigned src space name used for naming outputs</span>
+<span class="sd">    src_img: str</span>
+<span class="sd">        user assigned src image name used for naming outputs</span>
+<span class="sd">    dest_space: str</span>
+<span class="sd">        user assigned dest image name used for naming outputs</span>
+<span class="sd">    out: str</span>
+<span class="sd">        path to registration outputs root</span>
+<span class="sd">    src_path: str</span>
+<span class="sd">        path to source image (image to be sampled on transformed points)</span>
+<span class="sd">    dest_path: str</span>
+<span class="sd">        path to destination image (image whos points are to be transformed)</span>
+<span class="sd">    </span>
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; adj = [{1: (&#39;outputs/example_output/CCF/MRI_to_CCF/&#39;, &#39;f&#39;), 2: (&#39;outputs/example_output/MRI/HIST_REGISTERED_to_MRI/&#39;, &#39;b&#39;)},</span>
+<span class="sd">    ... {0: (&#39;outputs/example_output/CCF/MRI_to_CCF/&#39;, &#39;b&#39;)},</span>
+<span class="sd">    ... {0: (&#39;outputs/example_output/MRI/HIST_REGISTERED_to_MRI/&#39;, &#39;f&#39;)}]</span>
+<span class="sd">    &gt;&gt;&gt; spaces = {&#39;MRI&#39;: 0, &#39;CCF&#39;: 1, &#39;HIST&#39;: 2}</span>
+<span class="sd">    &gt;&gt;&gt; apply_transformation(adj, spaces, &#39;MRI&#39;, &#39;masked&#39;, &#39;CCF&#39;, &#39;outputs/example_output&#39;,</span>
+<span class="sd">    ... &#39;HR_NIHxCSHL_50um_14T_M1_masked.vtk&#39;, &#39;average_template_50.vtk&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># input: image to be transformed (src_path or I), img space to to which the source image will be matched (dest_path, J), adjacency list and spaces dict from run_registration, source and destination space names</span>
+    <span class="c1"># return: transfromed image</span>
+    
+    <span class="c1"># load source image</span>
+    <span class="n">xJ</span><span class="p">,</span> <span class="n">J</span><span class="p">,</span> <span class="n">J_title</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">emlddmm</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span><span class="n">src_path</span><span class="p">)</span> <span class="c1"># the image to be transformed</span>
+    <span class="n">J</span> <span class="o">=</span> <span class="n">J</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">J</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">J</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span><span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">xJ</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span><span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xJ</span><span class="p">]</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;in the special case of transforming an image series to the same space, e.g. [[HIST, nissl], [HIST, nissl]], we output HIST_INPUT_to_HIST_REGISTERED images.</span>
+<span class="sd">        TODO: in the future, we should be able to align different histology stains, e.g. [[HIST, myelin], [HIST, nissl]]. In this case two rigid transformations are needed,</span>
+<span class="sd">        one to align input myelin to input nissl, and one to align neighboring slices (input to registered space).&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">J_title</span> <span class="o">==</span> <span class="s1">&#39;slice_dataset&#39;</span> <span class="ow">and</span> <span class="n">dest_space</span> <span class="o">==</span> <span class="n">src_space</span><span class="p">:</span>
+        <span class="c1"># get image slice names for naming output images</span>
+        <span class="n">dest_slice_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dest_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">]</span>
+        <span class="n">dest_slice_names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dest_slice_names</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:])</span>
+        <span class="n">src_slice_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">src_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">]</span>
+        <span class="n">src_slice_names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">src_slice_names</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:])</span>
+        <span class="n">space</span> <span class="o">=</span> <span class="n">dest_space</span> <span class="c1"># src_space = dest_space = space</span>
+
+        <span class="n">x_series</span> <span class="o">=</span> <span class="n">xJ</span>
+        <span class="n">X_series</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x_series</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">transforms</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">space</span><span class="si">}</span><span class="s1">_REGISTERED/</span><span class="si">{</span><span class="n">space</span><span class="si">}</span><span class="s1">_INPUT_to_</span><span class="si">{</span><span class="n">space</span><span class="si">}</span><span class="s1">_REGISTERED/transforms&#39;</span><span class="p">)</span>
+        <span class="n">transforms_ls</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">transforms</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_matrix.txt&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">4</span><span class="p">:])</span>
+
+        <span class="n">A2d</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">transforms_ls</span><span class="p">:</span>
+            <span class="n">A2d_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">transforms</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+            <span class="c1"># note that there are nans at the end if I have commas at the end</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">A2d_</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">A2d_</span> <span class="o">=</span> <span class="n">A2d_</span><span class="p">[:,</span> <span class="p">:</span><span class="n">A2d_</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">A2d</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">A2d_</span><span class="p">)</span>
+
+        <span class="n">A2d</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">A2d</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span><span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">A2di</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">A2d</span><span class="p">)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="p">(</span><span class="n">A2di</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">@</span> <span class="n">X_series</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:,</span> <span class="kc">None</span><span class="p">])[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> 
+        <span class="n">m0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">M0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">m1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">M1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="c1"># construct a recon domain</span>
+        <span class="n">dJ</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">x_series</span><span class="p">]</span>
+        <span class="c1"># print(&#39;dJ shape: &#39;, [x.shape for x in dJ])</span>
+        <span class="n">xr0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">m0</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">M0</span><span class="p">),</span> <span class="n">dJ</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">m0</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">m0</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">xr1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">m1</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">M1</span><span class="p">),</span> <span class="n">dJ</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">m0</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">m0</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">xr</span> <span class="o">=</span> <span class="n">x_series</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xr0</span><span class="p">,</span> <span class="n">xr1</span>
+        <span class="n">XR</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xr</span><span class="p">,</span><span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># reconstruct 2d series</span>
+        <span class="n">Xs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">XR</span><span class="p">)</span>
+        <span class="n">Xs</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">(</span><span class="n">A2d</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">@</span> <span class="n">XR</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:,</span> <span class="kc">None</span><span class="p">])[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">A2d</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">Xs</span> <span class="o">=</span> <span class="n">Xs</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">Jr</span> <span class="o">=</span> <span class="n">emlddmm</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">xJ</span><span class="p">,</span> <span class="n">J</span><span class="p">,</span> <span class="n">Xs</span><span class="p">)</span>
+
+        <span class="c1"># save transformed 2d images   </span>
+        <span class="n">img_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">space</span><span class="si">}</span><span class="s1">_REGISTERED/</span><span class="si">{</span><span class="n">space</span><span class="si">}</span><span class="s1">_INPUT_to_</span><span class="si">{</span><span class="n">space</span><span class="si">}</span><span class="s1">_REGISTERED/images&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">img_out</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">img_out</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Jr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">Jr_</span> <span class="o">=</span> <span class="n">Jr</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+            <span class="n">xr_</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">xr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">xr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="mi">10</span><span class="p">]),</span> <span class="n">xr</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">xr</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">space</span><span class="si">}</span><span class="s1">_input_</span><span class="si">{</span><span class="n">src_slice_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">space</span><span class="si">}</span><span class="s1">_registered_</span><span class="si">{</span><span class="n">dest_slice_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">emlddmm</span><span class="o">.</span><span class="n">write_vtk_data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">img_out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">space</span><span class="si">}</span><span class="s1">_INPUT_</span><span class="si">{</span><span class="n">src_slice_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">space</span><span class="si">}</span><span class="s1">_REGISTERED_</span><span class="si">{</span><span class="n">dest_slice_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1">.vtk&#39;</span><span class="p">),</span> <span class="n">xr_</span><span class="p">,</span> <span class="n">Jr_</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># load destination image</span>
+    <span class="n">xI</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">I_title</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">emlddmm</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span><span class="n">dest_path</span><span class="p">)</span> <span class="c1"># the space to transform into</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">I</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">xI</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span><span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xI</span><span class="p">]</span>
+
+    <span class="n">slice_matching</span> <span class="o">=</span> <span class="s1">&#39;slice_dataset&#39;</span> <span class="ow">in</span> <span class="p">[</span><span class="n">I_title</span><span class="p">,</span> <span class="n">J_title</span><span class="p">]</span>
+    <span class="c1"># if slice_matching then construct the reconstructed space XR</span>
+    <span class="k">if</span> <span class="n">slice_matching</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">I_title</span><span class="o">==</span><span class="s1">&#39;slice_dataset&#39;</span><span class="p">:</span> <span class="c1"># then the last transform in transformation_seq should contain A2d files</span>
+            <span class="c1"># transforms = os.path.join(transformation_seq[-1][0], &#39;transforms&#39;)</span>
+            <span class="n">transforms</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_REGISTERED/</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_INPUT_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_REGISTERED/transforms&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># otherwise the first transform in transformation_seq should contain A2d filess</span>
+            <span class="c1"># transforms = os.path.join(transformation_seq[0][0], &#39;transforms&#39;)</span>
+            <span class="n">transforms</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_REGISTERED/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_INPUT_to_</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_REGISTERED/transforms&#39;</span><span class="p">)</span> 
+        <span class="n">transforms_ls</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">transforms</span><span class="p">)</span> <span class="k">if</span> <span class="s1">&#39;vtk&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">f</span> <span class="ow">and</span> <span class="s1">&#39;A.txt&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">f</span><span class="p">]</span>
+        <span class="n">transforms_ls</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">transforms_ls</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_matrix.txt&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">4</span><span class="p">:])</span>
+        <span class="c1"># determine which image is constructed from a 2d series, I or J.</span>
+        <span class="n">x_series</span> <span class="o">=</span> <span class="n">xI</span> <span class="k">if</span> <span class="n">I_title</span><span class="o">==</span><span class="s1">&#39;slice_dataset&#39;</span> <span class="k">else</span> <span class="n">xJ</span>
+        <span class="n">X_series</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x_series</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">),</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">A2d</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">transforms_ls</span><span class="p">:</span>
+            <span class="n">A2d_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">transforms</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+            <span class="c1"># note that there are nans at the end if I have commas at the end</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">A2d_</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">A2d_</span> <span class="o">=</span> <span class="n">A2d_</span><span class="p">[:,</span> <span class="p">:</span><span class="n">A2d_</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">A2d</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">A2d_</span><span class="p">)</span>
+
+        <span class="n">A2d</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">A2d</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span><span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">A2di</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">A2d</span><span class="p">)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="p">(</span><span class="n">A2di</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">@</span> <span class="n">X_series</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:,</span> <span class="kc">None</span><span class="p">])[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1"># reconstructed space needs to be created from the 2d series coordinates</span>
+        <span class="n">m0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">M0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">m1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">M1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="c1"># construct a recon domain</span>
+        <span class="n">dJ</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">x_series</span><span class="p">]</span>
+        <span class="c1"># print(&#39;dJ shape: &#39;, [x.shape for x in dJ])</span>
+        <span class="n">xr0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">m0</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">M0</span><span class="p">),</span> <span class="n">dJ</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">m0</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">m0</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">xr1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">m1</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">M1</span><span class="p">),</span> <span class="n">dJ</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">m0</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">m0</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">xr</span> <span class="o">=</span> <span class="n">x_series</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xr0</span><span class="p">,</span> <span class="n">xr1</span>
+        <span class="n">XR</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xr</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># reconstruct 2d series</span>
+        <span class="n">Xs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">XR</span><span class="p">)</span>
+        <span class="n">Xs</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">(</span><span class="n">A2d</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">@</span> <span class="n">XR</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:,</span> <span class="kc">None</span><span class="p">])[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">A2d</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">Xs</span> <span class="o">=</span> <span class="n">Xs</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">find_shortest_path</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">spaces</span><span class="p">[</span><span class="n">src_space</span><span class="p">],</span> <span class="n">spaces</span><span class="p">[</span><span class="n">dest_space</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">spaces</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Path is:&quot;</span><span class="p">)</span>
+
+    <span class="c1"># printing path as sequence of space names</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">spaces</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+
+    <span class="n">transformation_seq</span> <span class="o">=</span> <span class="n">get_transformation</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Transformation sequence: &#39;</span><span class="p">,</span> <span class="n">transformation_seq</span><span class="p">)</span>
+
+    <span class="c1"># if slice_matching and the destination is 2d series, then X = XR</span>
+    <span class="k">if</span> <span class="n">I_title</span> <span class="o">==</span> <span class="s1">&#39;slice_dataset&#39;</span><span class="p">:</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">XR</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span> <span class="c1"># the reconstructed registered domain</span>
+
+        <span class="c1"># we will also need the input domain for getting to_input displacement and images later</span>
+        <span class="n">Xin</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">X_series</span><span class="p">)</span> <span class="c1"># note that coordinates are on the last dimension e.g. (i,j,k,3)           </span>
+        <span class="n">Xin</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">((</span><span class="n">A2di</span><span class="p">[:,</span><span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">,:</span><span class="mi">2</span><span class="p">,:</span><span class="mi">2</span><span class="p">]</span> <span class="o">@</span> <span class="p">(</span><span class="n">Xin</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:][</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]))[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">A2di</span><span class="p">[:,</span><span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">,:</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">Xin</span> <span class="o">=</span> <span class="n">Xin</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># (3,i,j,k)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">transformation_seq</span><span class="p">))):</span>
+            <span class="n">Xin</span> <span class="o">=</span> <span class="n">emlddmm</span><span class="o">.</span><span class="n">compose_sequence</span><span class="p">([</span><span class="n">transformation_seq</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="n">Xin</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xI</span><span class="p">],</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">transformation_seq</span><span class="p">))):</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">emlddmm</span><span class="o">.</span><span class="n">compose_sequence</span><span class="p">([</span><span class="n">transformation_seq</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="n">X</span><span class="p">)</span>
+
+    <span class="c1"># get displacement</span>
+    <span class="k">if</span> <span class="n">I_title</span> <span class="o">==</span> <span class="s1">&#39;slice_dataset&#39;</span><span class="p">:</span>
+        <span class="c1"># for input disp we need to apply compose_sequence to  A2di @ X_series to get Xin and then input_disp = Xin - X_series</span>
+        <span class="n">input_disp</span> <span class="o">=</span> <span class="p">(</span><span class="n">Xin</span> <span class="o">-</span> <span class="n">X_series</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">())[</span><span class="kc">None</span><span class="p">]</span>
+        <span class="n">registered_disp</span> <span class="o">=</span> <span class="p">(</span><span class="n">X</span> <span class="o">-</span> <span class="n">XR</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">())[</span><span class="kc">None</span><span class="p">]</span>
+        
+        <span class="c1"># save out displacement from input and from registered space</span>
+        <span class="n">input_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_INPUT/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_INPUT/transforms/&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">input_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">input_dir</span><span class="p">)</span>
+        
+        <span class="n">registered_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_REGISTERED/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_REGISTERED/transforms/&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">registered_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">registered_dir</span><span class="p">)</span>
+
+        <span class="c1"># get image names of slices for naming outputs</span>
+        <span class="n">slice_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dest_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">]</span>
+        <span class="n">slice_names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">slice_names</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:])</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">input_disp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+            <span class="n">x_series_</span> <span class="o">=</span> <span class="p">[</span><span class="n">x_series</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">x_series</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x_series</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+            <span class="n">x_series_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">x_series_</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x_series_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">10</span><span class="p">])</span>
+            <span class="n">xr_</span> <span class="o">=</span> <span class="p">[</span><span class="n">xr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">xr</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">xr</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+            <span class="n">xr_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">xr_</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xr_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">10</span><span class="p">])</span>
+            <span class="c1"># write out input to dest displacement</span>
+            <span class="n">output_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_INPUT_</span><span class="si">{</span><span class="n">slice_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_displacement.vtk&#39;</span><span class="p">)</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_INPUT_</span><span class="si">{</span><span class="n">slice_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_displacement&#39;</span>
+            <span class="n">emlddmm</span><span class="o">.</span><span class="n">write_vtk_data</span><span class="p">(</span><span class="n">output_name</span><span class="p">,</span> <span class="n">x_series_</span><span class="p">,</span> <span class="n">input_disp</span><span class="p">[:,:,</span> <span class="n">i</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">title</span><span class="p">)</span>
+            <span class="c1"># write out registered to dest displacement</span>
+            <span class="n">output_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">registered_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_REGISTERED_</span><span class="si">{</span><span class="n">slice_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_displacement.vtk&#39;</span><span class="p">)</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_REGISTERED_</span><span class="si">{</span><span class="n">slice_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_displacement&#39;</span>
+            <span class="n">emlddmm</span><span class="o">.</span><span class="n">write_vtk_data</span><span class="p">(</span><span class="n">output_name</span><span class="p">,</span> <span class="n">xr_</span><span class="p">,</span> <span class="n">registered_disp</span><span class="p">[:,:,</span> <span class="n">i</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">title</span><span class="p">)</span>
+
+            <span class="c1"># TODO: write out detjac for 2d displacements</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># save out 3d displacement</span>
+        <span class="n">disp</span> <span class="o">=</span> <span class="p">(</span><span class="n">X</span> <span class="o">-</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xI</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;cpu&#39;</span><span class="p">))[</span><span class="kc">None</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">J_title</span> <span class="o">==</span> <span class="s1">&#39;slice_dataset&#39;</span><span class="p">:</span>
+            <span class="n">transform_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_REGISTERED_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">/transforms/&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">transform_dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">transform_dir</span><span class="p">)</span>
+            <span class="n">output_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">transform_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_REGISTERED_displacement.vtk&#39;</span><span class="p">)</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_REGISTERED_displacement&#39;</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">transform_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">/transforms/&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">transform_dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">transform_dir</span><span class="p">)</span>  
+            <span class="n">output_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">transform_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_displacement.vtk&#39;</span><span class="p">)</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_displacement&#39;</span>
+
+        <span class="n">emlddmm</span><span class="o">.</span><span class="n">write_vtk_data</span><span class="p">(</span><span class="n">output_name</span><span class="p">,</span> <span class="n">xI</span><span class="p">,</span> <span class="n">disp</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+
+        <span class="c1"># write out determinant of jacobian (detjac) of the transformed coordinates</span>
+        <span class="n">dv</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xI</span><span class="p">]</span>
+        <span class="n">jacobian</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">X</span><span class="p">,</span><span class="n">dv</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">dv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">dv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)))</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">jac</span> <span class="o">=</span> <span class="n">jacobian</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">dv</span><span class="p">)</span>
+        <span class="n">detjac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">jac</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">J_title</span> <span class="o">==</span> <span class="s1">&#39;slice_dataset&#39;</span><span class="p">:</span>
+            <span class="n">output_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">transform_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_REGISTERED_detjac.vtk&#39;</span><span class="p">)</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_REGISTERED_detjac&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">transform_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_detjac.vtk&#39;</span><span class="p">)</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_detjac&#39;</span>
+        <span class="n">emlddmm</span><span class="o">.</span><span class="n">write_vtk_data</span><span class="p">(</span><span class="n">output_name</span><span class="p">,</span> <span class="n">xI</span><span class="p">,</span> <span class="n">detjac</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="n">title</span><span class="p">)</span>
+
+    <span class="c1"># now apply transformation to image</span>
+    <span class="c1"># if slice_matching and the source is 2d series, then use xr and Jr</span>
+    <span class="k">if</span> <span class="n">J_title</span> <span class="o">==</span> <span class="s1">&#39;slice_dataset&#39;</span><span class="p">:</span>
+        <span class="c1"># register 2d series</span>
+        <span class="n">Jr</span> <span class="o">=</span> <span class="n">emlddmm</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">xJ</span><span class="p">,</span> <span class="n">J</span><span class="p">,</span> <span class="n">Xs</span><span class="p">)</span>
+        <span class="c1"># apply transform to registered image</span>
+        <span class="n">AphiI</span> <span class="o">=</span> <span class="n">emlddmm</span><span class="o">.</span><span class="n">apply_transform_float</span><span class="p">(</span><span class="n">xr</span><span class="p">,</span> <span class="n">Jr</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">AphiI</span> <span class="o">=</span> <span class="n">emlddmm</span><span class="o">.</span><span class="n">apply_transform_float</span><span class="p">(</span><span class="n">xJ</span><span class="p">,</span> <span class="n">J</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">))</span>
+    
+    <span class="c1"># visualize</span>
+    <span class="k">if</span> <span class="n">I_title</span> <span class="o">==</span> <span class="s1">&#39;slice_dataset&#39;</span><span class="p">:</span> <span class="c1"># if the destination is 2d series</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">xr</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">xI</span>
+    <span class="c1"># fig = emlddmm.draw(AphiI, x)</span>
+    <span class="c1"># fig[0].suptitle(f&#39;transformed {src_space} {src_img} to {dest_space}&#39;)</span>
+    <span class="c1"># fig[0].canvas.draw()</span>
+    <span class="c1"># plt.show()</span>
+
+    <span class="c1"># save transformed images</span>
+    <span class="k">if</span> <span class="n">I_title</span> <span class="o">==</span> <span class="s1">&#39;slice_dataset&#39;</span><span class="p">:</span>
+        <span class="c1"># first save out images of src space to registered slices</span>
+        <span class="n">registered_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_REGISTERED/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_REGISTERED/images/&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">registered_out</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">registered_out</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">AphiI</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">AphiI_</span> <span class="o">=</span> <span class="n">AphiI</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+            <span class="n">x_</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="mi">10</span><span class="p">]),</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+            <span class="n">emlddmm</span><span class="o">.</span><span class="n">write_vtk_data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">registered_out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">src_img</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_registered_</span><span class="si">{</span><span class="n">slice_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1">.vtk&#39;</span><span class="p">),</span> <span class="n">x_</span><span class="p">,</span> <span class="n">AphiI_</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">src_img</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_registered_</span><span class="si">{</span><span class="n">slice_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1"># now save images of src space to slices in input space</span>
+        <span class="n">AphiI_to_input</span> <span class="o">=</span> <span class="n">emlddmm</span><span class="o">.</span><span class="n">apply_transform_float</span><span class="p">(</span><span class="n">xJ</span><span class="p">,</span> <span class="n">J</span><span class="p">,</span> <span class="n">Xin</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">))</span>
+        <span class="n">input_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_INPUT/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_INPUT/images/&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">input_out</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">input_out</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">AphiI_to_input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">AphiI_to_input_</span> <span class="o">=</span> <span class="n">AphiI_to_input</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+            <span class="n">xI_</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">xI</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">xI</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="mi">10</span><span class="p">]),</span> <span class="n">xI</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">xI</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+            <span class="n">emlddmm</span><span class="o">.</span><span class="n">write_vtk_data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">src_img</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_input_</span><span class="si">{</span><span class="n">slice_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1">.vtk&#39;</span><span class="p">),</span> <span class="n">xI_</span><span class="p">,</span> <span class="n">AphiI_to_input_</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">src_img</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_input_</span><span class="si">{</span><span class="n">slice_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">J_title</span> <span class="o">==</span> <span class="s1">&#39;slice_dataset&#39;</span><span class="p">:</span>
+            <span class="n">img_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_INPUT_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">/images/&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">img_out</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">img_out</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">img_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">/images/&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">img_out</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">img_out</span><span class="p">)</span>
+        <span class="n">emlddmm</span><span class="o">.</span><span class="n">write_vtk_data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">img_out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">src_img</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">.vtk&#39;</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="n">AphiI</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">src_img</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># save text file of transformation order</span>
+    <span class="k">if</span> <span class="n">I_title</span> <span class="o">==</span> <span class="s2">&quot;slice_dataset&quot;</span><span class="p">:</span>
+        <span class="c1"># save transformation sequence to INPUT directory</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_INPUT/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_INPUT/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_transform_seq.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">transform</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">transformation_seq</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">transformation_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="c1"># save transformation sequence to RECONSTRUCTED directory</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_REGISTERED/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_REGISTERED/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_transform_seq.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">transform</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">transformation_seq</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">transformation_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">J_title</span> <span class="o">==</span> <span class="s1">&#39;slice_dataset&#39;</span><span class="p">:</span>
+            <span class="n">output_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_REGISTERED_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_REGISTERED_</span><span class="si">{</span><span class="n">src_img</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_transform_seq.txt&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">src_space</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">src_img</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">dest_space</span><span class="si">}</span><span class="s1">_transform_seq.txt&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_name</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">transform</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">transformation_seq</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">transformation_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../transformation_graph.html#transformation_graph.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Main</span>
+
+<span class="sd">    Main function for parsing input arguments, calculating registrations and applying transformations.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    $ python transformation_graph.py --infile GDMInput.json</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">help_string</span> <span class="o">=</span> <span class="s2">&quot;Arg parser looks for one argument, </span><span class="se">\&#39;</span><span class="s2">--infile</span><span class="se">\&#39;</span><span class="s2">, which is a JSON file with the following entries: </span><span class="se">\n\</span>
+<span class="s2">1) </span><span class="se">\&quot;</span><span class="s2">space_image_path</span><span class="se">\&quot;</span><span class="s2">: a list of lists, each containing the space name, image name, and path to an image or image series. (Required)</span><span class="se">\n\</span>
+<span class="s2">2) </span><span class="se">\&quot;</span><span class="s2">registrations</span><span class="se">\&quot;</span><span class="s2">: a list of lists, each containing two space-image pairs to be registered. e.g. [[[</span><span class="se">\&quot;</span><span class="s2">HIST</span><span class="se">\&quot;</span><span class="s2">, </span><span class="se">\&quot;</span><span class="s2">nissl</span><span class="se">\&quot;</span><span class="s2">], [</span><span class="se">\&quot;</span><span class="s2">MRI</span><span class="se">\&quot;</span><span class="s2">, </span><span class="se">\&quot;</span><span class="s2">masked</span><span class="se">\&quot;</span><span class="s2">]],</span><span class="se">\n\</span>
+<span class="s2">                                                                                                    [[</span><span class="se">\&quot;</span><span class="s2">MRI</span><span class="se">\&quot;</span><span class="s2">, </span><span class="se">\&quot;</span><span class="s2">masked</span><span class="se">\&quot;</span><span class="s2">], [</span><span class="se">\&quot;</span><span class="s2">CCF</span><span class="se">\&quot;</span><span class="s2">, </span><span class="se">\&quot;</span><span class="s2">average_template_50</span><span class="se">\&quot;</span><span class="s2">]],</span><span class="se">\n\</span>
+<span class="s2">                                                                                                    [[</span><span class="se">\&quot;</span><span class="s2">MRI</span><span class="se">\&quot;</span><span class="s2">, </span><span class="se">\&quot;</span><span class="s2">masked</span><span class="se">\&quot;</span><span class="s2">], [</span><span class="se">\&quot;</span><span class="s2">CT</span><span class="se">\&quot;</span><span class="s2">, </span><span class="se">\&quot;</span><span class="s2">masked</span><span class="se">\&quot;</span><span class="s2">]]]</span><span class="se">\n\</span>
+<span class="s2">                    If registrations were previously computed, this argument may be left out, and </span><span class="se">\&quot;</span><span class="s2">adj</span><span class="se">\&quot;</span><span class="s2"> and </span><span class="se">\&quot;</span><span class="s2">spaces</span><span class="se">\&quot;</span><span class="s2"> arguments can be used to apply transforms.</span><span class="se">\n\</span>
+<span class="s2">3) </span><span class="se">\&quot;</span><span class="s2">configs</span><span class="se">\&quot;</span><span class="s2">: list of paths to registration config JSON files, the order of which corresponds to the order of registrations listed in the previous value. (Required if computing registrations)</span><span class="se">\n\</span>
+<span class="s2">4) </span><span class="se">\&quot;</span><span class="s2">output</span><span class="se">\&quot;</span><span class="s2">: output directory which will be the output hierarchy root. If none is given, it is set to the current directory. (Required)</span><span class="se">\n\</span>
+<span class="s2">5) </span><span class="se">\&quot;</span><span class="s2">transforms</span><span class="se">\&quot;</span><span class="s2">: transforms to apply after they are computed from registration. Only necessary if </span><span class="se">\&quot;</span><span class="s2">transform_all</span><span class="se">\&quot;</span><span class="s2"> is False. Format is the same as </span><span class="se">\&quot;</span><span class="s2">registrations</span><span class="se">\&quot;</span><span class="s2">.</span><span class="se">\n\</span>
+<span class="s2">6) </span><span class="se">\&quot;</span><span class="s2">transform_all</span><span class="se">\&quot;</span><span class="s2">: bool. Applys all possible transformations given the transformation graph (adjacency list) formed by the registrations performed.</span><span class="se">\n\</span>
+<span class="s2">7) </span><span class="se">\&quot;</span><span class="s2">adj</span><span class="se">\&quot;</span><span class="s2">: path to </span><span class="se">\&quot;</span><span class="s2">adjacency_list.p</span><span class="se">\&quot;</span><span class="s2"> pickle file saved to output after performing registrations. (Only required for reconstructing images from previously computed registrations)</span><span class="se">\n\</span>
+<span class="s2">8) </span><span class="se">\&quot;</span><span class="s2">spaces</span><span class="se">\&quot;</span><span class="s2">: path to </span><span class="se">\&quot;</span><span class="s2">spaces_dict.p</span><span class="se">\&quot;</span><span class="s2">. Required with </span><span class="se">\&quot;</span><span class="s2">adj</span><span class="se">\&quot;</span><span class="s2"> for reconstructing previously computed registrations.&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">formatter_class</span><span class="o">=</span><span class="n">RawTextHelpFormatter</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--infile&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="n">help_string</span><span class="p">,</span>
+                        <span class="nb">type</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">FileType</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">))</span>
+    <span class="n">arguments</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="n">input_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">arguments</span><span class="o">.</span><span class="n">infile</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="n">input_dict</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;output&quot;</span> <span class="ow">in</span> <span class="n">input_dict</span> <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+    <span class="c1"># save out the json file used for input</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;infile.json&quot;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">input_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">space_image_path</span> <span class="o">=</span> <span class="n">input_dict</span><span class="p">[</span><span class="s2">&quot;space_image_path&quot;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;space_image_path is a required argument. It is a list of images, with each image being a list of the format: [</span><span class="se">\&quot;</span><span class="s2">space name</span><span class="se">\&quot;</span><span class="s2">, </span><span class="se">\&quot;</span><span class="s2">image name</span><span class="se">\&quot;</span><span class="s2">, </span><span class="se">\&quot;</span><span class="s2">image path</span><span class="se">\&quot;</span><span class="s2">]&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;registrations&quot;</span> <span class="ow">in</span> <span class="n">input_dict</span><span class="p">:</span>
+        <span class="n">registrations</span> <span class="o">=</span> <span class="n">input_dict</span><span class="p">[</span><span class="s2">&quot;registrations&quot;</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">configs</span> <span class="o">=</span> <span class="n">input_dict</span><span class="p">[</span><span class="s2">&quot;configs&quot;</span><span class="p">]</span> <span class="c1"># if registrations then there must also be configs</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="p">(</span><span class="s2">&quot;configs must be included in input with registrations. configs is a list of full paths to JSON registration configuration files.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;transforms&quot;</span> <span class="ow">in</span> <span class="n">input_dict</span><span class="p">:</span>
+        <span class="n">transforms</span> <span class="o">=</span> <span class="n">input_dict</span><span class="p">[</span><span class="s2">&quot;transforms&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;adj&quot;</span> <span class="ow">in</span> <span class="n">input_dict</span><span class="p">:</span>
+        <span class="n">adj</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">input_dict</span><span class="p">[</span><span class="s2">&quot;adj&quot;</span><span class="p">],</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">spaces</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">input_dict</span><span class="p">[</span><span class="s2">&quot;spaces&quot;</span><span class="p">],</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span> <span class="c1"># if adj then there must also be spaces</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="p">(</span><span class="s2">&quot;spaces must be included with adj. spaces is a dictionary of format \{</span><span class="se">\&quot;</span><span class="s2">spacename</span><span class="se">\&quot;</span><span class="s2">: &lt;space number&gt;\, ...}, where the space number corresponds to the space number in the adjacency list.&quot;</span><span class="p">)</span>
+    <span class="n">transform_all</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="s2">&quot;transform_all&quot;</span> <span class="ow">in</span> <span class="n">input_dict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">input_dict</span><span class="p">[</span><span class="s2">&quot;transform_all&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
+            <span class="n">transform_all</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1"># convert space_image_path to dictionary of dictionaries. (image_name-path key-values in a dict of space-img key-values)</span>
+    <span class="n">sip</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># space-image-path dictionary</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">space_image_path</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">space_image_path</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">sip</span><span class="p">:</span>
+            <span class="n">sip</span><span class="p">[</span><span class="n">space_image_path</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">new_img</span> <span class="o">=</span> <span class="p">{</span><span class="n">space_image_path</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span> <span class="n">space_image_path</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]}</span>
+        <span class="n">sip</span><span class="p">[</span><span class="n">space_image_path</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_img</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;output: &#39;</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;space-name-path dict: &#39;</span><span class="p">,</span> <span class="n">sip</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;registrations&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;registrations: &#39;</span><span class="p">,</span> <span class="n">registrations</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;configs: &#39;</span><span class="p">,</span> <span class="n">configs</span><span class="p">)</span>
+
+        <span class="n">reg_list</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># a list of dicts specifying inputs for each registration to perform</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">registrations</span><span class="p">)):</span>
+            <span class="n">src_space</span> <span class="o">=</span> <span class="n">registrations</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">src_img</span> <span class="o">=</span> <span class="n">registrations</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">dest_space</span> <span class="o">=</span> <span class="n">registrations</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">dest_img</span> <span class="o">=</span> <span class="n">registrations</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">src_path</span> <span class="o">=</span> <span class="n">sip</span><span class="p">[</span><span class="n">src_space</span><span class="p">][</span><span class="n">src_img</span><span class="p">]</span>
+            <span class="n">dest_path</span> <span class="o">=</span> <span class="n">sip</span><span class="p">[</span><span class="n">dest_space</span><span class="p">][</span><span class="n">dest_img</span><span class="p">]</span>
+
+            <span class="n">reg_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;registration&#39;</span><span class="p">:</span> <span class="n">registrations</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="c1"># registrsation format [[src_space, src_img], [dest_space, dest_img]]</span>
+                            <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="n">src_path</span><span class="p">,</span>
+                            <span class="s1">&#39;dest&#39;</span><span class="p">:</span> <span class="n">dest_path</span><span class="p">,</span>
+                            <span class="s1">&#39;config&#39;</span><span class="p">:</span> <span class="n">configs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                            <span class="s1">&#39;output&#39;</span><span class="p">:</span> <span class="n">output</span><span class="p">})</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;registration list: &#39;</span><span class="p">,</span> <span class="n">reg_list</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;running registrations...&#39;</span><span class="p">)</span>
+        <span class="n">adj</span><span class="p">,</span> <span class="n">spaces</span> <span class="o">=</span> <span class="n">run_registrations</span><span class="p">(</span><span class="n">reg_list</span><span class="p">)</span>
+
+        <span class="c1"># write out adjacency list and spaces dict</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s1">&#39;adjacency_list.p&#39;</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s1">&#39;spaces_dict.p&#39;</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">spaces</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">transform_all</span><span class="p">:</span> <span class="c1"># do every transfrom in both directions and transform all series images to registered space.</span>
+        <span class="n">transforms</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sip</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="c1"># for each space</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">sip</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="nb">list</span><span class="p">(</span><span class="n">sip</span><span class="p">[</span><span class="n">i</span><span class="p">])[</span><span class="mi">0</span><span class="p">]]):</span> <span class="c1"># if the path is a directory, then this is an image series</span>
+<span class="w">                </span><span class="sd">&#39;&#39;&#39;We assume there is only one image series in the space. In the future, we plan to include</span>
+<span class="sd">                support for multiple stains in the same histology space.&#39;&#39;&#39;</span>
+                <span class="n">dest_img</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sip</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">transforms</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="n">i</span><span class="p">,</span><span class="n">dest_img</span><span class="p">],[</span><span class="n">i</span><span class="p">,</span><span class="n">dest_img</span><span class="p">]])</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">sip</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="c1"># for every other space</span>
+                <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="n">i</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">dest_img</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sip</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># we just need any image in destination space so use the first.</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">sip</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="c1"># for each image in current space</span>
+                    <span class="n">transforms</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">dest_img</span><span class="p">]])</span>
+
+    <span class="k">if</span> <span class="s1">&#39;transforms&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;transforms are: &#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">transforms</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">trans</span> <span class="ow">in</span> <span class="n">transforms</span><span class="p">:</span>
+            <span class="n">src_space</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">src_img</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">src_path</span> <span class="o">=</span> <span class="n">sip</span><span class="p">[</span><span class="n">src_space</span><span class="p">][</span><span class="n">src_img</span><span class="p">]</span>
+            <span class="n">dest_space</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">dest_img</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">dest_path</span> <span class="o">=</span> <span class="n">sip</span><span class="p">[</span><span class="n">dest_space</span><span class="p">][</span><span class="n">dest_img</span><span class="p">]</span> 
+            <span class="n">apply_transformation</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">spaces</span><span class="p">,</span> <span class="n">src_space</span><span class="p">,</span> <span class="n">src_img</span><span class="p">,</span> <span class="n">dest_space</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span>\
+                                    <span class="n">src_path</span><span class="o">=</span><span class="n">src_path</span><span class="p">,</span> <span class="n">dest_path</span><span class="o">=</span><span class="n">dest_path</span><span class="p">)</span>
+
+    <span class="k">return</span></div>
+
+
+
+<span class="c1">#%%</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Daniel Tward.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

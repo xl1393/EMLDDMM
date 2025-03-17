@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction &mdash; GDM 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="installation.html" />
+    <link rel="prev" title="Welcome to GDM’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> GDM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#example-workflow-stp-mapping">Example workflow: STP mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-workflow-alternating-sections-to-atlases">Example workflow: Alternating sections to atlases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-workflow-ex-vivo-mri">Example workflow: Ex vivo MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-workflow-arbitrary-layout">Example workflow: Arbitrary layout</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coordinate_systems.html">Coordinate Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="file_formats.html">File Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input_specification.html">Input specification via Transformation Graph Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output_specification.html">Output Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">Work in progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GDM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Introduction</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/introduction.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h1>
+<p>The purpose of our pipeline is to coregister neuroimaging datasets of different modalities and with different coordinate systems.  We support 3D to 3D mapping, 3D to 2D mapping (e.g. mapping to serial sections), and 2D to 2D mapping (e.g. rigidly aligning slices with different stains).</p>
+<p>We perform registration using diffeomorphisms (with time varying velocity field parameterization) and affine transforms. These transformations can be composed to map data between coordinate spaces and between single specimens and common coordinate systems.</p>
+<p>Examples of typical workflows are below. In the diagrams below, each arrow represents the computation of a transformation.  By following arrows in the forward or reverse direction, all data can be reconstructed in any of the available spaces.  A minor caveat is that only low resolution 2D summary data can be reconstructed in a 3D space.</p>
+<div class="section" id="example-workflow-stp-mapping">
+<h2>Example workflow: STP mapping<a class="headerlink" href="#example-workflow-stp-mapping" title="Permalink to this heading"></a></h2>
+<p>A common setting is when we do not have serial section data.  For example we may map the Allen atlas to a single 3D STP image.  We will need to superimpose atlas labels on the STPT image, and transform the STPT image to match the shape of the atlas.</p>
+<div class="figure align-center" id="threedthreedmap">
+<div class="graphviz"><img src="_images/graphviz-c1491416dc2eca8b1261a16e5583582ff451ba73.png" alt="Picture of an arrow from atlas to STPT." class="graphviz" /></div>
+<p class="caption"><span class="caption-text">An example task of 3D to 3D mapping between an atlas and a Serial Two Photon Tomography dataset.</span><a class="headerlink" href="#threedthreedmap" title="Permalink to this image"></a></p>
+</div>
+</div>
+<div class="section" id="example-workflow-alternating-sections-to-atlases">
+<h2>Example workflow: Alternating sections to atlases<a class="headerlink" href="#example-workflow-alternating-sections-to-atlases" title="Permalink to this heading"></a></h2>
+<p>A typical example is to image a mouse brain using serial sections.  Alternate sections are stained for Nissl, or for a specific fluorescent tracer.  The pipeline will rigidly register fluorescent slices to neighboring Nissl slices, and will deformably register the Allen CCF Nissl atlas onto the 3D stack of Nissl slices. This allows us to map the anatomical labels from the atlas onto our slices.  On each slice, we can quantify cell counts or fluorescence in atlas regions. In 3D we can quantify tracer or cell density.</p>
+<div class="figure align-center" id="threedtwodmap">
+<div class="graphviz"><img src="_images/graphviz-c85a7c1fdd0203e2f1b78199e22a9eabbc126cc6.png" alt="Picture of an arrow from atlas to STPT." class="graphviz" /></div>
+<p class="caption"><span class="caption-text">We map our 3D atlas onto a series of 2D nissl images. We also map our 2D Nissl images to their nearest fluorescent image</span><a class="headerlink" href="#threedtwodmap" title="Permalink to this image"></a></p>
+</div>
+<p>Note that any time our pipeline registers a 3D volume to a set of 2D slices, a new space is automatically created called a “registered” space.  In this space, all the Nissl sections will be rigidly aligned into a 3D reconstruction.</p>
+<div class="figure align-center" id="threedtwodmapwithregistered">
+<span id="twodsections"></span><div class="graphviz"><img src="_images/graphviz-17fc1b285f99230a7ba17938c5a66e57d313d153.png" alt="Picture of an arrow from atlas to STPT." class="graphviz" /></div>
+<p class="caption"><span class="caption-text">For any 3D to 2D map, a registered space is automatically created (shown in red).  No input data is associated with this space, but images can be reconstructed into this space.</span><a class="headerlink" href="#threedtwodmapwithregistered" title="Permalink to this image"></a></p>
+</div>
+</div>
+<div class="section" id="example-workflow-ex-vivo-mri">
+<h2>Example workflow: Ex vivo MRI<a class="headerlink" href="#example-workflow-ex-vivo-mri" title="Permalink to this heading"></a></h2>
+<p>Another example is when MRI is available for a specimen.  We typically have an in vivo MRI, ex vivo MRI, and serial section microscopy.  The registration tasks are: i) ex vivo to in vivo, ii) ex vivo to serial sections, iii) ex vivo to atlas.  We may wish to reconstruct our data in any of the three spaces (in vivo, ex vivo, or atlas). Here the ex vivo MRI plays the role of a common space that is mapped to everything.</p>
+<div class="figure align-center" id="exvivomap">
+<div class="graphviz"><img src="_images/graphviz-a834afb1aafbc87626dfdd72d6693181edb9375e.png" alt="Picture of an arrow from atlas to STPT." class="graphviz" /></div>
+<p class="caption"><span class="caption-text">We may also include in vivo and ex vivo mri.</span><a class="headerlink" href="#exvivomap" title="Permalink to this image"></a></p>
+</div>
+<p>Again, a reconstructed space  will be automatically created.</p>
+<div class="figure align-center" id="exvivomapwithregistered">
+<div class="graphviz"><img src="_images/graphviz-0cdac0cc9ba56e2a51ddb9ba31f94a50149ec16e.png" alt="Picture of an arrow from atlas to STPT." class="graphviz" /></div>
+<p class="caption"><span class="caption-text">For any 3D to 2D map, a registered space is automatically created (shown in red).  No input data is associated with this space, but images can be reconstructed into this space.</span><a class="headerlink" href="#exvivomapwithregistered" title="Permalink to this image"></a></p>
+</div>
+</div>
+<div class="section" id="example-workflow-arbitrary-layout">
+<h2>Example workflow: Arbitrary layout<a class="headerlink" href="#example-workflow-arbitrary-layout" title="Permalink to this heading"></a></h2>
+<p>In general, a registration task can be formulated by a directed acyclic graph.  Each node in the graph is a “space”, which may have more than one image associated with it.  Each arrow in the graph is a registration task.</p>
+<p>We have built infrastructure to perform necessary maps, and compose transforms to reconstruct any dataset in any space.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to GDM’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Daniel Tward.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

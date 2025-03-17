@@ -1,0 +1,1 @@
+{"output": "output", "space_image_path": [["Atlas", "image", "AtlasMRI.vtk"], ["Atlas", "labels", "AtlasLabels.vtk"], ["Target", "image", "TargetMRI.vtk"]], "registrations": [[["Atlas", "image"], ["Target", "image"]]], "configs": ["atlas_to_target_config.json"], "transform_all": true}

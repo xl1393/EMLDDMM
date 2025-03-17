@@ -1,0 +1,75 @@
+{
+    "output": "/home/brysongray/emlddmm/outputs/tests_3-9-23",
+    "space_image_path": [
+        [
+            "CCF",
+            "average_template_50",
+            "/home/brysongray/data/MD816_mini/average_template_50.vtk"
+        ],
+        [
+            "MRI",
+            "masked",
+            "/home/brysongray/data/MD816_mini/HR_NIHxCSHL_50um_14T_M1_masked.vtk"
+        ],
+        [
+            "MRI",
+            "unmasked",
+            "/home/brysongray/data/MD816_mini/HR_NIHxCSHL_50um_14T_M1.vtk"
+        ],
+        [
+            "CT",
+            "masked",
+            "/home/brysongray/data/MD816_mini/ct_mask.vtk"
+        ],
+        [
+            "CT",
+            "unmasked",
+            "/home/brysongray/data/MD816_mini/HR_NIHxCSHL_M1_3_20201109_153412.vtk"
+        ],
+        [
+            "HIST",
+            "nissl",
+            "/home/brysongray/data/MD816_mini/MD816_STIF_mini_new"
+        ]
+    ],
+    "registrations": [
+        [
+            [
+                "MRI",
+                "masked"
+            ],
+            [
+                "HIST",
+                "nissl"
+            ]
+
+        ],
+        [
+            [
+                "CCF",
+                "average_template_50"
+            ],
+            [
+                "MRI",
+                "masked"
+            ]
+        ],
+        [
+            [
+                "CT",
+                "masked"
+
+            ],
+            [
+                "MRI",
+                "masked"
+            ]
+        ]
+    ],
+    "configs": [
+        "/home/brysongray/emlddmm/examples/configMD816_Nissl_to_MR.json",
+        "/home/brysongray/emlddmm/examples/configMD816_MR_to_CCF.json",
+        "/home/brysongray/emlddmm/examples/configMD816_MR_to_CT.json"
+    ],
+    "transform_all": "True"
+}

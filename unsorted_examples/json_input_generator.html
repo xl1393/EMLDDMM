@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title> Example form </title>
+    <style>
+        body {background-color: dimgray;}
+        #container {
+            width:768px; 
+            margin:auto; 
+            background-color: lightgray; 
+            padding:10px; 
+            border:2px; 
+            border-color:black; 
+            border-style:solid; 
+            border-radius:5px;
+        }
+        fieldset {color:black;border-color:black;border-style:solid;border-radius:5px; };
+    </style>
+
+</head>
+
+
+<body>
+    <div id="container">
+        <h1>Generative Diffeomorphic Mapping</h1>
+        <h2>JSON Input Builder</h2>
+
+
+        <form>
+            <fieldset id="outputset">
+                <legend>Outputs</legend>
+                <label for="output">Output Directory</label>
+                <input type="text" name="output" id="output" value="your/output/directory"/>
+            </fieldset>
+
+            <fieldset id="imagespacenameset">                
+                <legend>Images</legend>
+                <button id="addimage" type="button">Add Image </button>
+                <button id="removeimage" type="button">Remove Image </button>
+
+                <fieldset id="image0">
+                    <legend>Image 0</legend>
+                    <label for="image0space">Space</label>
+                    <input type="text" name="image0space" id="image0space" value="CCF">
+                    <br>
+                    <label for="image0name">Name</label>
+                    <input type="text" name="image0name" id="image0name" value="STP">
+                    <br>
+                    <label for="image0path">Path</label>
+                    <input type="text" name="image0path" id="image0path" value="path/to/image0.vtk">
+                    <!-- note we cannot use type file, because it will not allow us to ge the path-->                    
+                </fieldset>
+
+
+                <fieldset id="image1">
+                    <legend>Image 1</legend>
+                    <label for="image1space">Space</label>
+                    <input type="text" name="image1space" id="image1space" value="ExvivoMRI">
+                    <br>
+                    <label for="image1name">Name</label>
+                    <input type="text" name="image1name" id="image1name" value="T1">
+                    <br>
+                    <label for="image1path">Path</label>
+                    <input type="text" name="image1path" id="image1path" value="path/to/image1.vtk">
+                </fieldset>
+
+
+            </fieldset>
+
+            <fieldset id="registrationset">
+                <legend>Registrations</legend>
+                <button id="addregistration" type="button">Add registration pair</button>
+                <button id="removeregistration" type="button">Remove registration pair</button>
+                <fieldset id="registration0">
+                    <legend> Registration 0</legend>                    
+                        <label for="registration0tospace">Register TO Space</label>
+                        <input type="text" name="registration0tospace" id="registration0tospace" value="MRI">
+                        <br>
+                        <label for="registration0toname">Register TO Name</label>
+                        <input type="text" name="registration0toname" id="registration0toname" value="T1">
+                        <br>
+
+                        <label for="registration0fromspace">Register FROM Space</label>
+                        <input type="text" name="registration0fromspace" id="registration0fromspace" value="CCF">
+                        <br>
+                        <label for="registration0fromname">Register FROM Name</label>
+                        <input type="text" name="registration0fromname" id="registration0fromname" value="STP">
+                        <br>
+
+                        <label for="registration0config">Config</label>
+                        <input type="text" name="registration0config" id="registration0config" value="path/to/example/config.json">
+                </fieldset>
+            </fieldset>
+
+            <fieldset id="transformationset">
+                <legend>Transformations to Apply</legend>
+                <button id="addtransformation" type="button">Add transformation pair</button>
+                <button id="removetransformation" type="button">Remove transformation pair</button>
+                <fieldset id="transformation0">
+                    <legend> Transformation 0</legend>                    
+                        <label for="transformation0tospace">Transform TO Space</label>
+                        <input type="text" name="transformation0tospace" id="transformation0tospace" value="CCF">
+                        <br>
+                        <label for="transformation0toname">Transform TO Name</label>
+                        <input type="text" name="transformation0toname" id="transformation0toname" value="STP">
+                        <br>
+
+                        <label for="transformation0fromspace">Transform FROM Space</label>
+                        <input type="text" name="transformation0fromspace" id="transformation0fromspace" value="MRI">
+                        <br>
+                        <label for="transformation0fromname">Transform FROM Name</label>
+                        <input type="text" name="transformation0fromname" id="transformation0fromname" value="T1">
+                        <br>
+                        
+                </fieldset>
+
+
+            </fieldset>
+
+            <fieldset id="submitset">
+                <legend> Generate JSON Input</legend>
+                <input type="submit" value="Generate"/>
+                <button type="button"  id="save" >Save</button>
+                <br>
+                <textarea id="jsontextid" rows="20" cols="80">
+                </textarea>
+            </fieldset>
+        </form>
+
+    </div>
+
+
+    <script type="text/javascript">
+        function handleSubmit_(event) {
+            event.preventDefault();
+
+            // get data as json
+            const data = new FormData(event.target);
+            const dataobj = Object.fromEntries(data.entries());
+            const value = JSON.stringify(dataobj);
+
+            // log it
+            console.log(value);            
+
+ 
+            // download
+            var hiddenElement = document.createElement('a');
+
+            hiddenElement.href = 'data:attachment/text,' + encodeURI(value);
+            hiddenElement.target = '_blank';
+            hiddenElement.download = 'myFile.txt';
+            hiddenElement.click();
+        }
+
+        function handleSubmit(event) {
+            event.preventDefault();
+
+            // create an object that will store all my values
+            var myobj = {};
+            // first we will get the output directory
+            const output = form.querySelector('input[name="output"]')
+            myobj[output.name] = output.value;
+
+            // now we will get our image name space
+            var imagespacenameset = document.getElementById("imagespacenameset");
+            var children = imagespacenameset.getElementsByTagName("fieldset");
+
+            var myarr = [];
+            for (var i = 0; i < children.length; i++){
+                //console.log(children[i]);
+                var thislist = [];                
+                // thisobj is the fieldset, we need to get a tuple of its children
+                var triple = children[i].getElementsByTagName('input');
+                thislist.push(triple[0].value);
+                thislist.push(triple[1].value);
+                thislist.push(triple[2].value);                
+                
+                myarr.push(thislist);
+            }            
+            myobj['image_space_name'] = myarr;
+
+
+
+            // now we will get the registrations
+            console.log('starting to get registrations')            ;
+            var registrationset = document.getElementById("registrationset");
+            var children = registrationset.getElementsByTagName("fieldset");
+
+            var registrationarr = [];
+            var configarr = [];
+            for (var i = 0; i < children.length; i++){
+                var thislist = [];
+                var thislist_ = [];
+                // this fieldset has two fieldsets as a child
+                var quad = children[i].getElementsByTagName('input');
+                thislist_.push(quad[0].value);
+                thislist_.push(quad[1].value);
+                thislist.push(thislist_);
+                var thislist_ = [];
+                thislist_.push(quad[2].value);
+                thislist_.push(quad[3].value);
+                thislist.push(thislist_);
+
+                registrationarr.push(thislist);
+
+                configarr.push(quad[4].value);
+            }
+            myobj['registrations'] = registrationarr;
+            myobj['configs'] = configarr;
+
+
+            // now we will get the transformations
+            console.log('starting to get transformations')            ;
+            var transformationset = document.getElementById("transformationset");
+            var children = transformationset.getElementsByTagName("fieldset");
+
+            var transformationarr = [];
+            
+            for (var i = 0; i < children.length; i++){
+                var thislist = [];
+                var thislist_ = [];
+                // this fieldset has two fieldsets as a child
+                var quad = children[i].getElementsByTagName('input');
+                thislist_.push(quad[0].value);
+                thislist_.push(quad[1].value);
+                thislist.push(thislist_);
+                var thislist_ = [];
+                thislist_.push(quad[2].value);
+                thislist_.push(quad[3].value);
+                thislist.push(thislist_);
+
+                transformationarr.push(thislist);
+                
+            }
+            myobj['transforms'] = transformationarr;
+            
+
+
+            // create json output
+            var myjson = JSON.stringify(myobj,null,4);
+            console.log(myjson);
+            var jsontextarea = document.getElementById("jsontextid");
+            //jsontextarea.innerHTML = myjson;
+            jsontextarea.value = myjson;   
+
+        }
+
+        const form = document.querySelector('form');
+        form.addEventListener('submit', handleSubmit);
+
+        function handleSave(event){
+            var jsontextarea = document.getElementById("jsontextid");            
+            var jsontext = jsontextarea.value;
+
+
+            // save it
+            // found documentation online
+            var hiddenElement = document.createElement('a');
+
+            hiddenElement.href = 'data:attachment/text,' + encodeURI(jsontext);
+            hiddenElement.target = '_blank';
+            hiddenElement.download = 'GDMInput.json';
+            hiddenElement.click();
+
+        }
+        const save = document.getElementById("save");
+        save.addEventListener('click', handleSave);
+    
+
+        function addimagefunction(event) {
+            event.preventDefault();
+            console.log('clicked add image');
+
+            // find the number and increment
+            const imagespacenameset = document.getElementById("imagespacenameset");
+            var children = imagespacenameset.getElementsByTagName("fieldset");
+            console.log('found' + children.length + "children");
+            var ind = children.length;
+
+            // create the fieldset and the legend
+            var fieldset = document.createElement("fieldset");
+            fieldset.id = "image"+ind;
+            var legend = document.createElement("legend");
+            legend.innerHTML = "Image "+ind; // we need to count the images
+            fieldset.appendChild(legend);
+            console.log('added fieldset');
+            console.log(fieldset);
+
+            // create the space
+            var spacelabel = document.createElement("label");
+            spacelabel.for = "image"+ind+"space";
+            spacelabel.innerHTML = "Space";
+            fieldset.appendChild(spacelabel);
+            console.log('added label');
+            console.log(spacelabel);
+
+            var spaceinput = document.createElement("input");
+            spaceinput.name = spacelabel.for;
+            fieldset.appendChild(spaceinput);
+
+            var br = document.createElement("br");
+            fieldset.appendChild(br);
+            
+            
+            // create the name
+            var namelabel = document.createElement("label");
+            namelabel.for = "image"+ind+"name";
+            namelabel.innerHTML = "Name";
+            fieldset.appendChild(namelabel);
+
+            var nameinput = document.createElement("input");
+            nameinput.name = namelabel.for;
+            fieldset.appendChild(nameinput);
+
+            var br = document.createElement("br");
+            fieldset.appendChild(br);
+            
+            // create the path
+            var pathlabel = document.createElement("label");
+            pathlabel.for = "image"+ind+"path";
+            pathlabel.innerHTML = "Path";
+            fieldset.appendChild(pathlabel);// find the number and increment            
+            
+            var pathinput = document.createElement("input");
+            pathinput.name = pathlabel.for;
+            fieldset.appendChild(pathinput);
+
+            var br = document.createElement("br");
+            fieldset.appendChild(br);
+            
+            // add it to the document            
+            imagespacenameset.appendChild(fieldset);
+
+        }
+        const addimage = document.getElementById('addimage');
+        addimage.addEventListener('click',addimagefunction);
+
+        function removeimagefunction(event){
+            event.preventDefault();            
+
+            var imagespacenameset = document.getElementById("imagespacenameset");
+            // we need to remove the last child if it is a fieldset
+            var lastchild = imagespacenameset.lastChild;
+            console.log(lastchild.tagName);
+            if (lastchild.tagName == "FIELDSET") {
+                imagespacenameset.removeChild(lastchild);
+            }
+
+        }
+        const removeimage = document.getElementById('removeimage');
+        removeimage.addEventListener('click',removeimagefunction);
+
+
+        function addregistrationfunction(event){
+            event.preventDefault();            
+
+            // find the number and increment
+            const registrationset = document.getElementById("registrationset");
+            var children = registrationset.getElementsByTagName("fieldset");            
+            var ind = children.length;
+
+            // create the fieldset and the legend
+            var fieldset = document.createElement("fieldset");
+            fieldset.id = "registration"+ind;
+            var legend = document.createElement("legend");
+            legend.innerHTML = "Registration "+ind; // we need to count the images
+            fieldset.appendChild(legend);
+
+            // create TO space
+            var spacelabel = document.createElement("label");
+            spacelabel.for = "registration"+ind+"tospace";
+            spacelabel.innerHTML = "Registration TO Space";
+            fieldset.appendChild(spacelabel);
+
+            var spaceinput = document.createElement("input");
+            spaceinput.name = spacelabel.for;
+            fieldset.appendChild(spaceinput);
+
+            var br = document.createElement("br");
+            fieldset.appendChild(br);
+
+            // create TO name
+            var namelabel = document.createElement("label");
+            namelabel.for = "registration"+ind+"toname";
+            namelabel.innerHTML = "Registration TO Name";
+            fieldset.appendChild(namelabel);
+
+            var nameinput = document.createElement("input");
+            nameinput.name = namelabel.for;
+            fieldset.appendChild(nameinput);
+
+            var br = document.createElement("br");
+            fieldset.appendChild(br);
+
+
+            // create FROM space
+            var spacelabel = document.createElement("label");
+            spacelabel.for = "registration"+ind+"fromspace";
+            spacelabel.innerHTML = "Registration FROM Space";
+            fieldset.appendChild(spacelabel);
+
+            var spaceinput = document.createElement("input");
+            spaceinput.name = spacelabel.for;
+            fieldset.appendChild(spaceinput);
+
+            var br = document.createElement("br");
+            fieldset.appendChild(br);
+
+            // create FROM name
+            var namelabel = document.createElement("label");
+            namelabel.for = "registration"+ind+"fromname";
+            namelabel.innerHTML = "Registration FROM Name";
+            fieldset.appendChild(namelabel);
+
+            var nameinput = document.createElement("input");
+            nameinput.name = namelabel.for;
+            fieldset.appendChild(nameinput);
+
+            var br = document.createElement("br");
+            fieldset.appendChild(br);
+
+            // create config
+            var configlabel = document.createElement("label");
+            configlabel.for = "registration"+ind+"config";
+            configlabel.innerHTML = "Config";
+            fieldset.appendChild(configlabel);
+
+            var configinput = document.createElement("input");
+            configinput.name = configlabel.for;
+            fieldset.appendChild(configinput);
+
+            var br = document.createElement("br");
+            fieldset.appendChild(br);
+
+            // add it to the document            
+            registrationset.appendChild(fieldset);
+
+
+        }
+        const addregistration = document.getElementById('addregistration');
+        addregistration.addEventListener('click',addregistrationfunction);
+
+        function removeregistrationfunction(event){
+            event.preventDefault();
+            
+            var registrationset = document.getElementById("registrationset");
+            // we need to remove the last child if it is a fieldset
+            var lastchild = registrationset.lastChild;
+            console.log(lastchild.tagName);
+            if (lastchild.tagName == "FIELDSET") {
+                registrationset.removeChild(lastchild);
+            }
+        }
+        const removeregistration = document.getElementById('removeregistration');
+        removeregistration.addEventListener('click',removeregistrationfunction);
+
+
+
+
+
+        function addtransformationfunction(event){
+            event.preventDefault();            
+
+            // find the number and increment
+            const transformationset = document.getElementById("transformationset");
+            var children = transformationset.getElementsByTagName("fieldset");            
+            var ind = children.length;
+
+            // create the fieldset and the legend
+            var fieldset = document.createElement("fieldset");
+            fieldset.id = "transformation"+ind;
+            var legend = document.createElement("legend");
+            legend.innerHTML = "Transformation "+ind; // we need to count the images
+            fieldset.appendChild(legend);
+
+            // create TO space
+            var spacelabel = document.createElement("label");
+            spacelabel.for = "transformation"+ind+"tospace";
+            spacelabel.innerHTML = "Transformation TO Space";
+            fieldset.appendChild(spacelabel);
+
+            var spaceinput = document.createElement("input");
+            spaceinput.name = spacelabel.for;
+            fieldset.appendChild(spaceinput);
+
+            var br = document.createElement("br");
+            fieldset.appendChild(br);
+
+            // create TO name
+            var namelabel = document.createElement("label");
+            namelabel.for = "transformation"+ind+"toname";
+            namelabel.innerHTML = "Transformation TO Name";
+            fieldset.appendChild(namelabel);
+
+            var nameinput = document.createElement("input");
+            nameinput.name = namelabel.for;
+            fieldset.appendChild(nameinput);
+
+            var br = document.createElement("br");
+            fieldset.appendChild(br);
+
+
+            // create FROM space
+            var spacelabel = document.createElement("label");
+            spacelabel.for = "transformation"+ind+"fromspace";
+            spacelabel.innerHTML = "Transformation FROM Space";
+            fieldset.appendChild(spacelabel);
+
+            var spaceinput = document.createElement("input");
+            spaceinput.name = spacelabel.for;
+            fieldset.appendChild(spaceinput);
+
+            var br = document.createElement("br");
+            fieldset.appendChild(br);
+
+            // create FROM name
+            var namelabel = document.createElement("label");
+            namelabel.for = "transformation"+ind+"fromname";
+            namelabel.innerHTML = "Transformation FROM Name";
+            fieldset.appendChild(namelabel);
+
+            var nameinput = document.createElement("input");
+            nameinput.name = namelabel.for;
+            fieldset.appendChild(nameinput);
+
+            var br = document.createElement("br");
+            fieldset.appendChild(br);
+
+           
+
+            // add it to the document            
+            transformationset.appendChild(fieldset);
+
+
+        }
+        const addtransformation = document.getElementById('addtransformation');
+        addtransformation.addEventListener('click',addtransformationfunction);
+
+        function removetransformationfunction(event){
+            event.preventDefault();
+            
+            var transformationset = document.getElementById("transformationset");
+            // we need to remove the last child if it is a fieldset
+            var lastchild = transformationset.lastChild;
+            console.log(lastchild.tagName);
+            if (lastchild.tagName == "FIELDSET") {
+                transformationset.removeChild(lastchild);
+            }
+        }
+        const removetransformation = document.getElementById('removetransformation');
+        removetransformation.addEventListener('click',removetransformationfunction);
+
+    </script>
+</body>
+
+
+</html>

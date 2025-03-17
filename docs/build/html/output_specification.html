@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Output Specification &mdash; GDM 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Input specification via Transformation Graph Interface" href="input_specification.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> GDM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coordinate_systems.html">Coordinate Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="file_formats.html">File Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input_specification.html">Input specification via Transformation Graph Interface</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Output Specification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">Work in progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GDM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Output Specification</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/output_specification.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="output-specification">
+<h1>Output Specification<a class="headerlink" href="#output-specification" title="Permalink to this heading"></a></h1>
+<p>Our output data structure contains transformations between pairs of named spaces (always), transformed images (suggested but not necessary), and other data types such as points and geojson annotations.</p>
+<p>These pairs are organized in a hierarchical tree, where the parent directories contain data in a given space, and the child directories contain data from a given space.</p>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this heading"></a></h2>
+<p>Example output data structure is shown here. Lists are used to show directory hierarchy: This supports an arbitrary number of folders.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>{Space i}
+  {Space j}_to_{space i}
+    Transforms (always)
+      {space i}_to_{space j}_displacement.vtk (3D to 3D, or 3D to registered space, NOT 3D to input which does not exist as a displacement field)
+      {space i}_{image k}_to_{space j}_{image k’}_matrix.txt (2D to 2D only)
+      {space i}_{image k}_to_{space j}_displacement.vtk (i 2D to 3D only)
+    Images (suggested)
+      {space j}_{image k}_to_{space i}.vtk
+      {space j}_{image k}_to_{space i}_{image k’}.vtk (for 2D to 2D)
+    Points (optional)
+      {space j}_{image k}_detects_to_{space i}.vtk
+    Json (for atlas only)
+      Atlas_to_{space j}_{image k}.geojson
+    Meanxyz (for atlas only)
+      {space j}_{image k}_detects_to_atlas_meanxyz.txt
+  QC (optional)
+    Composite_{image slice name}_QC.jpg
+</pre></div>
+</div>
+</div>
+<div class="section" id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Permalink to this heading"></a></h2>
+<p>Some important notes are below:</p>
+<ol class="arabic simple">
+<li><p>Output raster data is stored using simple legacy vtk file format (see <a class="reference internal" href="file_formats.html#vtkref"><span class="std std-ref">here</span></a>).</p></li>
+<li><p>Output point data is stored using simple legacy vtk file format, with polydata.</p></li>
+<li><p>json is shown only for data from atlas to a 2D space.</p></li>
+<li><p>Mean xyz is shown only for a 2D space to the atlas.</p></li>
+<li><p>Transforms are stored as a rigid transformation matrix only for maps from a 2D space to another 2D space.</p></li>
+<li><p>Note the “to” in the naming of transforms is opposite to images. This is intentional.</p></li>
+<li><p>Note that in 2D directories, image names are appended to space names for uniqueness, separated by an underscore.</p></li>
+<li><p>QC figures are not standard, as they will vary by dataset.</p></li>
+</ol>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="input_specification.html" class="btn btn-neutral float-left" title="Input specification via Transformation Graph Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Daniel Tward.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

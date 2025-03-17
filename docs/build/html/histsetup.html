@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>histsetup module &mdash; GDM 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> GDM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coordinate_systems.html">Coordinate Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="file_formats.html">File Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input_specification.html">Input specification via Transformation Graph Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output_specification.html">Output Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">Work in progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GDM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>histsetup module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/histsetup.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="module-histsetup">
+<span id="histsetup-module"></span><h1>histsetup module<a class="headerlink" href="#module-histsetup" title="Permalink to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="histsetup.downsample_slices">
+<span class="sig-prename descclassname"><span class="pre">histsetup.</span></span><span class="sig-name descname"><span class="pre">downsample_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_downfactor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_downfactor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fnumidx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/histsetup.html#downsample_slices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#histsetup.downsample_slices" title="Permalink to this definition"></a></dt>
+<dd><p>Downsample Slices</p>
+<p>Copy a subset of optionally downsampled 2D images to the output directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subject_dir</strong> (<em>str</em>) – Path to image series</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em>) – Output path</p></li>
+<li><p><strong>ext</strong> (<em>str</em>) – subject image file extension (e.g. ‘png’)</p></li>
+<li><p><strong>slice_downfactor</strong> (<em>int</em>) – Specifies n, where every nth image will be copied to the output folder.</p></li>
+<li><p><strong>image_downfactor</strong> (<em>int</em>) – Image downsampling factor.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">subject_dir</span> <span class="o">=</span> <span class="s1">&#39;/path/to/histology/data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_dir</span> <span class="o">=</span> <span class="s1">&#39;example_outputs&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">downsample_slices</span><span class="p">(</span><span class="n">subject_dir</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">,</span> <span class="n">slice_downfactor</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">image_downfactor</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>FileNotFoundError</strong> – If the subject directory does not exist.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="histsetup.generate_sidecars">
+<span class="sig-prename descclassname"><span class="pre">histsetup.</span></span><span class="sig-name descname"><span class="pre">generate_sidecars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_slice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[14.72,</span> <span class="pre">14.72,</span> <span class="pre">10.0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_downfactor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fnumidx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'right-inferior-posterior'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/histsetup.html#generate_sidecars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#histsetup.generate_sidecars" title="Permalink to this definition"></a></dt>
+<dd><p>Generate Sidecar Files</p>
+<p>Saves out JSON format sidecare files for each image in the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subject_dir</strong> (<em>str</em>) – Path to image series</p></li>
+<li><p><strong>ext</strong> (<em>str</em>) – image file extension (e.g. ‘png’)</p></li>
+<li><p><strong>max_slice</strong> (<em>int</em>) – Number of slices in the original dataset (used to calcuate spatial information for the slices).</p></li>
+<li><p><strong>dtype</strong> (<em>str</em>) – Image data type</p></li>
+<li><p><strong>dv</strong> (<em>list</em><em> of </em><em>float</em>) – voxel spacing in microns (ordered: row, col, slice)</p></li>
+<li><p><strong>slice_downfactor</strong> (<em>int</em>) – Factor used to reduce the number of images from the original dataset.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">subject_dir</span> <span class="o">=</span> <span class="s1">&#39;example_outputs&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">generate_sidecars</span><span class="p">(</span><span class="n">subject_dir</span><span class="p">,</span> <span class="s1">&#39;png&#39;</span><span class="p">,</span> <span class="n">max_slice</span><span class="o">=</span><span class="mi">1389</span><span class="p">,</span> <span class="n">dv</span><span class="o">=</span><span class="p">[</span><span class="mf">14.72</span><span class="p">,</span><span class="mf">14.72</span><span class="p">,</span><span class="mf">10.0</span><span class="p">])</span>
+<span class="go">MD787-N1-2019.03.28-21.52.46_MD787_1_0001.json</span>
+<span class="go">MD787-N7-2019.03.28-22.05.43_MD787_3_0021.json</span>
+<span class="go">MD787-N14-2019.03.28-22.20.46_MD787_2_0041.json</span>
+<span class="gp">...</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>FileNotFoundError</strong> – If the subject directory does not exist.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="histsetup.main">
+<span class="sig-prename descclassname"><span class="pre">histsetup.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/histsetup.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#histsetup.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="histsetup.make_samples_tsv">
+<span class="sig-prename descclassname"><span class="pre">histsetup.</span></span><span class="sig-name descname"><span class="pre">make_samples_tsv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_downfactor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_slice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fnumidx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/histsetup.html#make_samples_tsv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#histsetup.make_samples_tsv" title="Permalink to this definition"></a></dt>
+<dd><p>Make ‘samples.tsv’ file</p>
+<p>Saves a tsv file listing the images in the folder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subject_dir</strong> (<em>path</em>) – Path to the dataset.</p></li>
+<li><p><strong>ext</strong> (<em>str</em>) – image file extension (e.g. ‘png’)</p></li>
+<li><p><strong>max_slice</strong> (<em>int</em>) – Number of slices in the original dataset (not currently used)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">subject_dir</span> <span class="o">=</span> <span class="s1">&#39;example_outputs&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">make_samples_tsv</span><span class="p">(</span><span class="n">subject_dir</span><span class="p">,</span> <span class="s1">&#39;png&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>FileNotFoundError</strong> – If the subject directory does not exist.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Daniel Tward.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

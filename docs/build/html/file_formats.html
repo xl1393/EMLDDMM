@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File Formats &mdash; GDM 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Input specification via Transformation Graph Interface" href="input_specification.html" />
+    <link rel="prev" title="Coordinate Systems" href="coordinate_systems.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> GDM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coordinate_systems.html">Coordinate Systems</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">File Formats</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#json-geometry-files">JSON geometry files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dataset-lists">Dataset lists</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#legacy-csv-geometry-files">Legacy CSV geometry files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cold-spring-harbor-legacy-geometry-files">Cold Spring Harbor legacy geometry files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d-imaging-data">3D imaging data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d-microscopy-images-from-cold-spring-harbor">2D microscopy images from Cold Spring Harbor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d-datasets-for-registration">2D datasets for registration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#affine-transformations">Affine Transformations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deformations">Deformations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#velocity-fields">Velocity fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#annotations">Annotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#point-sets">Point sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pixel-indexed-point-sets">Pixel indexed point sets</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="input_specification.html">Input specification via Transformation Graph Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output_specification.html">Output Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">Work in progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GDM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>File Formats</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/file_formats.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="file-formats">
+<h1>File Formats<a class="headerlink" href="#file-formats" title="Permalink to this heading"></a></h1>
+<p>We propose to use VTK formatted data whenever possible. Currently we use simple legacy .vtk files (<a class="reference external" href="https://docs.vtk.org/en/latest/design_documents/VTKFileFormats.html">https://docs.vtk.org/en/latest/design_documents/VTKFileFormats.html</a>). This supports vector and raster graphics, works well with visualization software including web viewers, and is largely human readable.  It does not support compression, and so other formats are also used.</p>
+<div class="section" id="json-geometry-files">
+<h2>JSON geometry files<a class="headerlink" href="#json-geometry-files" title="Permalink to this heading"></a></h2>
+<p>Every imaging file that does not store geometry information (e.g. 2D slices stored as pngs/tifs/etc) will have a corresponding short JSON sidecar file located in the same directory, with the same name filename, and the extension .json appended.  The information stored here should be as close as possible to an NRRD header (<a class="reference external" href="http://teem.sourceforge.net/nrrd/format.html">http://teem.sourceforge.net/nrrd/format.html</a>).  Note that 2D images are described as though they are 3D, with pixel size in the z dimension referring to section thickness.</p>
+<p>Such sidecar files are inspired by the BIDS standard, and contain information typically stored in an NRRD header.  Each sidecar file must contain the following fields:</p>
+<ul class="simple">
+<li><p>“DataFile”: the image file name</p></li>
+<li><p>“SpaceDirections”: a list of vectors for each image dimension specifying the unit conversion from pixel indices (row,column) to input space coordinates. Note that the z-coordinate conversion indicates the slice thickness plus the spacing between slices.  This is a list of vectors in x,y,z order, where the xyz coordinate system is defined in the “input space” section.</p></li>
+<li><p>“SpaceOrigin”:  The world coordinate of the image origin, in x,y,z order.</p></li>
+</ul>
+<p>Other metadata can be stored in the json file, but only the above 3 are generally used for the data loader functions.</p>
+<p>Note that each 2D image is modeled as a 3D image with a single slice (i.e. a size of 1 in).</p>
+<p>An example is shown below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;DataFile&quot;</span><span class="p">:</span> <span class="s2">&quot;MD787_small_nissl/MD787-N27-2019.03.28-22.55.54_MD787_2_0080.png&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;Float32&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;Dimension&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="s2">&quot;Endian&quot;</span><span class="p">:</span> <span class="s2">&quot;big&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;Sizes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">392</span><span class="p">,</span> <span class="mi">480</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+  <span class="s2">&quot;Space&quot;</span><span class="p">:</span> <span class="s2">&quot;inferior-right-posterior&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;SpaceDimension&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="s2">&quot;SpaceUnits&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;um&quot;</span><span class="p">,</span> <span class="s2">&quot;um&quot;</span><span class="p">,</span><span class="s2">&quot;um&quot;</span> <span class="p">],</span>
+  <span class="s2">&quot;SpaceDirections&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+    <span class="p">[</span><span class="mf">44.160000000000004</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">44.160000000000004</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">200</span>      <span class="p">]</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;SliceThickness&quot;</span> <span class="p">:</span> <span class="mf">10.0</span>
+  <span class="s2">&quot;SpaceOrigin&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">8633.28</span><span class="p">,</span> <span class="o">-</span><span class="mf">10576.32</span><span class="p">,</span> <span class="o">-</span><span class="mf">120100.0</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Note when data is read, the space directions are reversed to line up with common conventions for image array axes.  The last axis of an image array corresponds to columns (x), the second last corresponds to rows (y), and the third last corresponds to slices (z).</p>
+</div>
+<div class="section" id="dataset-lists">
+<h2>Dataset lists<a class="headerlink" href="#dataset-lists" title="Permalink to this heading"></a></h2>
+<p>Since sections may be missing or require other comments, we include a tsv file in the same directory describing every slice in the dataset. The required fields are sample_id and status, the latter should contain present or absent.  An example is shown below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sample_id</span>    <span class="n">participant_id</span>          <span class="n">species</span>         <span class="n">status</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N7</span><span class="o">-</span><span class="mf">2019.03.28</span><span class="o">-</span><span class="mf">22.05.43</span><span class="n">_MD787_2_0020</span><span class="o">.</span><span class="n">png</span>       <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N14</span><span class="o">-</span><span class="mf">2019.03.28</span><span class="o">-</span><span class="mf">22.20.46</span><span class="n">_MD787_1_0040</span><span class="o">.</span><span class="n">png</span>      <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N20</span><span class="o">-</span><span class="mf">2019.03.28</span><span class="o">-</span><span class="mf">22.36.39</span><span class="n">_MD787_3_0060</span><span class="o">.</span><span class="n">png</span>      <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N27</span><span class="o">-</span><span class="mf">2019.03.28</span><span class="o">-</span><span class="mf">22.55.54</span><span class="n">_MD787_2_0080</span><span class="o">.</span><span class="n">png</span>      <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N34</span><span class="o">-</span><span class="mf">2019.03.28</span><span class="o">-</span><span class="mf">23.15.58</span><span class="n">_MD787_1_0100</span><span class="o">.</span><span class="n">png</span>      <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N40</span><span class="o">-</span><span class="mf">2019.03.28</span><span class="o">-</span><span class="mf">23.33.43</span><span class="n">_MD787_3_0120</span><span class="o">.</span><span class="n">png</span>      <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N47</span><span class="o">-</span><span class="mf">2019.03.28</span><span class="o">-</span><span class="mf">23.54.40</span><span class="n">_MD787_2_0140</span><span class="o">.</span><span class="n">png</span>      <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N54</span><span class="o">-</span><span class="mf">2019.03.29</span><span class="o">-</span><span class="mf">00.15.46</span><span class="n">_MD787_1_0160</span><span class="o">.</span><span class="n">png</span>      <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N60</span><span class="o">-</span><span class="mf">2019.03.29</span><span class="o">-</span><span class="mf">00.33.42</span><span class="n">_MD787_3_0180</span><span class="o">.</span><span class="n">png</span>      <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N67</span><span class="o">-</span><span class="mf">2019.03.29</span><span class="o">-</span><span class="mf">00.56.05</span><span class="n">_MD787_2_0200</span><span class="o">.</span><span class="n">png</span>      <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N74</span><span class="o">-</span><span class="mf">2019.03.29</span><span class="o">-</span><span class="mf">01.18.34</span><span class="n">_MD787_1_0220</span><span class="o">.</span><span class="n">png</span>      <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N80</span><span class="o">-</span><span class="mf">2019.03.29</span><span class="o">-</span><span class="mf">01.36.50</span><span class="n">_MD787_3_0240</span><span class="o">.</span><span class="n">png</span>      <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N87</span><span class="o">-</span><span class="mf">2019.03.29</span><span class="o">-</span><span class="mf">01.57.37</span><span class="n">_MD787_2_0260</span><span class="o">.</span><span class="n">png</span>      <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N94</span><span class="o">-</span><span class="mf">2019.03.29</span><span class="o">-</span><span class="mf">02.19.41</span><span class="n">_MD787_1_0280</span><span class="o">.</span><span class="n">png</span>      <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N100</span><span class="o">-</span><span class="mf">2019.03.29</span><span class="o">-</span><span class="mf">02.40.34</span><span class="n">_MD787_3_0300</span><span class="o">.</span><span class="n">png</span>     <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N107</span><span class="o">-</span><span class="mf">2019.03.29</span><span class="o">-</span><span class="mf">03.04.17</span><span class="n">_MD787_2_0320</span><span class="o">.</span><span class="n">png</span>     <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N114</span><span class="o">-</span><span class="mf">2019.03.29</span><span class="o">-</span><span class="mf">03.28.07</span><span class="n">_MD787_1_0340</span><span class="o">.</span><span class="n">png</span>     <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+<span class="n">MD787</span><span class="o">-</span><span class="n">N120</span><span class="o">-</span><span class="mf">2019.03.29</span><span class="o">-</span><span class="mf">03.49.00</span><span class="n">_MD787_3_0360</span><span class="o">.</span><span class="n">png</span>     <span class="n">MD787</span>   <span class="n">Mus</span> <span class="n">Musculus</span>    <span class="n">present</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="legacy-csv-geometry-files">
+<h2>Legacy CSV geometry files<a class="headerlink" href="#legacy-csv-geometry-files" title="Permalink to this heading"></a></h2>
+<p>In older versions of our pipeline, we stored information in a csv file, with the following 10 fields for each image.</p>
+<ul class="simple">
+<li><p>Filename</p></li>
+<li><p>Nx ny nz: number of pixels in the x y and z direction (nz=1 if 2D image)</p></li>
+<li><p>Dx dy dz: pixel size in x y and z direction (dz = slice thickness if 2D image)</p></li>
+<li><p>X0 y0 z0: coordinate of the first pixel in x y and z direction (z0 = location within dataset if 2D image)</p></li>
+</ul>
+</div>
+<div class="section" id="cold-spring-harbor-legacy-geometry-files">
+<h2>Cold Spring Harbor legacy geometry files<a class="headerlink" href="#cold-spring-harbor-legacy-geometry-files" title="Permalink to this heading"></a></h2>
+<p>Cold Spring Harbor is storing geometry data in a plain text file.  For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">2021</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">05</span> <span class="mi">14</span><span class="p">:</span><span class="mi">30</span><span class="p">:</span><span class="mf">13.177668</span>
+<span class="n">Registered</span> <span class="p">:</span> <span class="n">Y</span>
+<span class="n">Input</span> <span class="n">Path</span><span class="p">:</span><span class="o">/</span><span class="n">nfs</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">main</span><span class="o">/</span><span class="n">M32</span><span class="o">/</span><span class="n">RegistrationData</span><span class="o">/</span><span class="n">Data_Marmoset</span><span class="o">/</span><span class="n">m6344</span><span class="o">/</span><span class="n">Transformation_OUTPUT</span><span class="o">/</span><span class="n">m6344_img</span><span class="o">/</span>
+<span class="n">Output</span> <span class="n">Path</span><span class="p">:</span><span class="o">/</span><span class="n">nfs</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">main</span><span class="o">/</span><span class="n">M32</span><span class="o">/</span><span class="n">Cell_Detection</span><span class="o">/</span><span class="n">CellDetPass1_reg</span><span class="o">/</span><span class="n">m6344</span><span class="o">/</span>
+<span class="n">Number</span> <span class="n">of</span> <span class="n">Files</span> <span class="n">Detected</span><span class="p">:</span><span class="mi">386</span>
+<span class="n">Resolution</span><span class="p">:</span><span class="mf">0.92</span>
+<span class="n">Resolution</span> <span class="ow">in</span> <span class="n">Json</span><span class="p">:</span> <span class="mi">1</span> <span class="n">micron</span><span class="o">/</span><span class="n">pixel</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="d-imaging-data">
+<span id="vtkref"></span><h2>3D imaging data<a class="headerlink" href="#d-imaging-data" title="Permalink to this heading"></a></h2>
+<p>Our standard is to use simple vtk legacy format for 3D (see <a class="reference external" href="https://examples.vtk.org/site/VTKFileFormats/#simple-legacy-formats">https://examples.vtk.org/site/VTKFileFormats/#simple-legacy-formats</a>). Note that this data is always stored in big endian, regardless of machine defaults. These have simple human readable headers that contain the 9 pieces of information above.  Our pipeline provides basic support for nifti images using the <code class="code docutils literal notranslate"><span class="pre">nibabel</span></code> python package.</p>
+</div>
+<div class="section" id="d-microscopy-images-from-cold-spring-harbor">
+<h2>2D microscopy images from Cold Spring Harbor<a class="headerlink" href="#d-microscopy-images-from-cold-spring-harbor" title="Permalink to this heading"></a></h2>
+<p>Acquired microscopy data is stored at Cold Spring Harbor Laboratory in jp2 format at full resolution (generally 0.46 microns per pixel). The filename is generated by the scanner, following a template schema that the Mitra lab uses in a standard manner. An example is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">MD787</span><span class="o">-</span><span class="n">N3</span><span class="o">-</span><span class="mf">2019.03.28</span><span class="o">-</span><span class="mf">21.57.34</span><span class="n">_MD787_3_0009</span><span class="o">.</span><span class="n">jp2</span>
+</pre></div>
+</div>
+<p>Where the meaning of each hyphen separated field is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">sample</span> <span class="nb">id</span><span class="p">}</span><span class="o">-</span><span class="p">{</span><span class="n">N</span><span class="o">/</span><span class="n">F</span><span class="o">/</span><span class="n">IHC</span> <span class="k">for</span> <span class="n">nissl</span> <span class="n">fluoro</span> <span class="ow">or</span> <span class="n">ihc</span><span class="p">}</span><span class="o">-</span><span class="p">{</span><span class="n">slide</span> <span class="n">number</span><span class="p">}</span><span class="o">-</span><span class="p">{</span><span class="n">date</span><span class="p">}</span><span class="o">-</span><span class="p">{</span><span class="n">time</span><span class="p">}</span><span class="n">_</span><span class="p">{</span><span class="n">sample</span> <span class="nb">id</span><span class="p">}</span><span class="n">_</span><span class="p">{</span><span class="n">what</span> <span class="n">position</span> <span class="n">on</span> <span class="n">slide</span><span class="p">}</span><span class="n">_</span><span class="p">{</span><span class="n">section</span> <span class="n">number</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">anterior</span> <span class="n">to</span> <span class="n">posterior</span> <span class="n">order</span> <span class="p">(</span><span class="n">generally</span><span class="p">)}</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Note that no geometry information is stored in filenames here, so this should be added as a json companion file.</p>
+</div>
+<div class="section" id="d-datasets-for-registration">
+<h2>2D datasets for registration<a class="headerlink" href="#d-datasets-for-registration" title="Permalink to this heading"></a></h2>
+<p>Typically data is downsampled by a factor of 32 and saved as a .tif with the same filename.</p>
+<p>Registration data can be safely downsampled to approximately the same resolution as atlas images (10-50 micron).</p>
+<p>For 2D serial section datasets images should be stored in a single directory using standard imaging formats (i.e. to be read by matplotlib’s imread function), downsampled by approximately 32 times (e.g. 14.72 microns for CSH data).  While our pipelines do support downsampling to desired resolutions, code will run more efficiently if these sections are already downsampled.</p>
+<p>Slice datasets must contain sidecar json files, and data set list tsv files. The script, <a class="reference internal" href="histsetup.html#module-histsetup" title="histsetup"><code class="xref py py-mod docutils literal notranslate"><span class="pre">histsetup</span></code></a>, generates sidecar files and dataset lists given a subject dataset and voxel spacing (where spacing in the z axis indicates slice thickness plus slice spacing).</p>
+</div>
+<div class="section" id="affine-transformations">
+<h2>Affine Transformations<a class="headerlink" href="#affine-transformations" title="Permalink to this heading"></a></h2>
+<p>Affine transformations are stored as 4x4 matrices written in a text file.  Each column is separated by spaces.  Each row is separated by a new line.  Coordinates are in xyz order.  When read into python using our library, they will be converted to zyx order to be consistent with our conventions for indexing image arrays.</p>
+</div>
+<div class="section" id="deformations">
+<h2>Deformations<a class="headerlink" href="#deformations" title="Permalink to this heading"></a></h2>
+<p>Deformations are as 3 component displacement fields (not position fields) in vtk files.  In python we work in zyx order, but when writing to vtk fields we switch to xyz order which is the vtk convention.</p>
+</div>
+<div class="section" id="velocity-fields">
+<h2>Velocity fields<a class="headerlink" href="#velocity-fields" title="Permalink to this heading"></a></h2>
+<p>Velocities are nt x 3 component vector fields in vtk files.  In python we work in zyx order, but when writing to vtk fields we switch to xyz order which is the vtk convention.</p>
+</div>
+<div class="section" id="annotations">
+<h2>Annotations<a class="headerlink" href="#annotations" title="Permalink to this heading"></a></h2>
+<p>2D annotations are stored as geojson files using the multipolygon data type.  Each structure is given a name, and an integer ID. Metadata stores information about which atlas is used, and which 2D image file the annotations correspond to.</p>
+<p>These files will also contain atlas coordinate gridlines.</p>
+</div>
+<div class="section" id="point-sets">
+<h2>Point sets<a class="headerlink" href="#point-sets" title="Permalink to this heading"></a></h2>
+<p>Point sets are stored in vtk polydata format.</p>
+</div>
+<div class="section" id="pixel-indexed-point-sets">
+<h2>Pixel indexed point sets<a class="headerlink" href="#pixel-indexed-point-sets" title="Permalink to this heading"></a></h2>
+<p>Point sets that describe detected cells are stored in geojson format.  These point sets have some constraints based on how they will be displayed using open layers or angular on the web.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="coordinate_systems.html" class="btn btn-neutral float-left" title="Coordinate Systems" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="input_specification.html" class="btn btn-neutral float-right" title="Input specification via Transformation Graph Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Daniel Tward.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,1 @@
+{"DataFile": "PTM902-N214-2021.05.27-12.06.11_PTM902_1_0640.jpg", "Type": "uint8", "Dimension": 4, "Sizes": [3, 155, 115, 1], "Space": "right-inferior-posterior", "SpaceDimension": 3, "SpaceUnits": ["um", "um", "um"], "SpaceDirections": ["none", [58.88, 0.0, 0.0], [0.0, 58.88, 0.0], [0.0, 0.0, 20.0]], "SpaceOrigin": [-4533.76, -3356.1600000000003, 6110.0]}

@@ -1,0 +1,18 @@
+{
+    "space_image_path": [["HIST", "nissl", "/home/dtward/bmaproot/ifshome/bgray/data/MD816_mini/MD816_STIF_mini"],
+                         ["CCF", "average_template_50", "/home/dtward/bmaproot/ifshome/bgray/data/MD816_mini/average_template_50.vtk"],
+                         ["MRI", "masked", "/home/dtward/bmaproot/ifshome/bgray/data/MD816_mini/HR_NIHxCSHL_50um_14T_M1_masked.vtk"],
+                         ["MRI", "unmasked", "/home/dtward/bmaproot/ifshome/bgray/data/MD816_mini/HR_NIHxCSHL_50um_14T_M1.vtk"],
+                         ["CT", "masked", "/home/dtward/bmaproot/ifshome/bgray/data/MD816_mini/ct_mask.vtk"],
+                         ["CT", "unmasked", "/home/dtward/bmaproot/ifshome/bgray/data/MD816_mini/HR_NIHxCSHL_M1_3_20201109_153412.vtk"]],
+    "registrations": [[["HIST", "nissl"], ["MRI", "masked"]],
+                       [["MRI", "masked"], ["CCF", "average_template_50"]],
+                       [["MRI", "masked"], ["CT", "masked"]]],
+    "configs": ["configMD816_Nissl_to_MR.json",
+                "configMD816_MR_to_CCF.json",
+                "configMD816_MR_to_CT.json"],
+    "output": "transformation_graph_outputs_daniel",
+    "transforms": [[["HIST", "nissl"], ["CCF", "average_template_50"]],
+                   [["MRI", "masked"], ["CT", "masked"]]],
+    "transform_all": "True"
+}

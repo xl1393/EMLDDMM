@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coordinate Systems &mdash; GDM 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="File Formats" href="file_formats.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> GDM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Coordinate Systems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#atlas-spaces">Atlas spaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mouse-atlas">Mouse atlas</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#coordinate-directions">Coordinate directions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#coordinate-origin">Coordinate origin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pixel-size">Pixel size</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#other-information">Other information</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#marmoset-atlas">Marmoset atlas</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Coordinate directions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">Coordinate origin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">Other information</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#human-atlas">Human atlas</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id4">Coordinate directions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">Coordinate origin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#voxel-size">Voxel size</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">Other information</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#input-space">Input space</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Coordinate directions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Coordinate origin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Voxel size</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#registered-space">Registered space</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id10">Coordinate directions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id11">Coordinate origin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">Voxel size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-non-uniqueness-of-registered-space">The non-uniqueness of registered space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id13">Other information</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#mouse-with-coronal-sections">Mouse with coronal sections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mouse-with-sagittal-sections">Mouse with sagittal sections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mouse-with-transverse-sections">Mouse with transverse sections</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="file_formats.html">File Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input_specification.html">Input specification via Transformation Graph Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output_specification.html">Output Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">Work in progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GDM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Coordinate Systems</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/coordinate_systems.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="coordinate-systems">
+<h1>Coordinate Systems<a class="headerlink" href="#coordinate-systems" title="Permalink to this heading"></a></h1>
+<p>Our pipeline computes transformations between pairs of spaces.  Each space can include one or more images that are sampled on the same voxel grid.  Spaces are defined by an origin and an orientation, and often a voxel size.  Depending on conventions, these may be specified relative to anatomy in an image (common for atlases) or relative to the sampling grid the image was obtained on.  The latter case is common because generally we don’t know where the anatomy is until after we have solved a registeration problem.</p>
+<div class="section" id="atlas-spaces">
+<h2>Atlas spaces<a class="headerlink" href="#atlas-spaces" title="Permalink to this heading"></a></h2>
+<p>Coordinate systems associated with several different atlases are described here.</p>
+<div class="section" id="mouse-atlas">
+<h3>Mouse atlas<a class="headerlink" href="#mouse-atlas" title="Permalink to this heading"></a></h3>
+<p>We adopt the Allen Institute’s Common Coordinate Framework (CCF) atlas, and use its structure annotations, its 3D Nissl image, and its 3D STPT average template image.</p>
+<p>Note that the STPT image and annotations are left right symmetric in this data.  Nissl images are not left right symmetric.</p>
+<p>The CCF NRRD files do not specify a coordinate system correctly.  We build our own right handed coordinate system which is described below.</p>
+<a class="reference internal image-reference" href="_images/mouse_coords.png"><img alt="_images/mouse_coords.png" src="_images/mouse_coords.png" style="width: 400px;" /></a>
+<div class="section" id="coordinate-directions">
+<h4>Coordinate directions<a class="headerlink" href="#coordinate-directions" title="Permalink to this heading"></a></h4>
+<p>We chose “x” to point from the brain’s superior to inferior, “y” to point from the brain’s left to right (note this is often displayed by pointing from the right side of the screen to the left, i.e. radiological convention), and “z” to point from posterior to anterior (caudal to rostral).</p>
+</div>
+<div class="section" id="coordinate-origin">
+<h4>Coordinate origin<a class="headerlink" href="#coordinate-origin" title="Permalink to this heading"></a></h4>
+<p>We chose “x” to point from the brain’s superior to inferior, “y” to point from the brain’s left to right (note this is often displayed by pointing from the right side of the screen to the left, i.e. radiological convention), and “z” to point from posterior to anterior (caudal to rostral).</p>
+<p>We choose the coordinate origin to be our best estimate of the bregma location, based on previous mappings to MR data with skull.  Location on Average Template (volume size 8 x 11.4 x 13.2 mm):
+* x=930 µm from dorsal end of the volume
+* y=5700 µm from right end of the volume
+* z=8000 µm from posterior end of the volume</p>
+</div>
+<div class="section" id="pixel-size">
+<h4>Pixel size<a class="headerlink" href="#pixel-size" title="Permalink to this heading"></a></h4>
+<p>This dataset is available in 10, 25, 50, and 100 micron isotropic voxel size.  We typically perform registration at 50 microns.</p>
+</div>
+<div class="section" id="other-information">
+<h4>Other information<a class="headerlink" href="#other-information" title="Permalink to this heading"></a></h4>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Different versions of annotations are available.  Unless otherwise specified, we use CCF version 3.  This can be downloaded here: <a class="reference external" href="http://download.alleninstitute.org/informatics-archive/current-release/mouse_ccf/annotation/ccf_2017/">http://download.alleninstitute.org/informatics-archive/current-release/mouse_ccf/annotation/ccf_2017/</a> Note, as of March 2023, there is a new version of annotations called 2022. But we are not using that version.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>On CSH server: /nfs/data/main/M32/RegistrationData/ATLAS/annotation_50_bregma_LR.vtk
+/nfs/data/main/M32/RegistrationData/ATLAS/ara_nissl_50_bregma.vtk
+/nfs/data/main/M32/RegistrationData/ATLAS/average_template_50_bregma.vtk</p>
+</div>
+</div>
+</div>
+<div class="section" id="marmoset-atlas">
+<h3>Marmoset atlas<a class="headerlink" href="#marmoset-atlas" title="Permalink to this heading"></a></h3>
+<p>For marmoset we typically use the RIKEN atlas described in Woodward 2018 (<a class="reference external" href="https://www.nature.com/articles/sdata20189">https://www.nature.com/articles/sdata20189</a>).  An image of our coordinate system convention is shown below.</p>
+<a class="reference internal image-reference" href="_images/marmoset_coords.png"><img alt="_images/marmoset_coords.png" src="_images/marmoset_coords.png" style="width: 400px;" /></a>
+<a class="reference internal image-reference" href="_images/marmoset_coords_2.png"><img alt="_images/marmoset_coords_2.png" src="_images/marmoset_coords_2.png" style="width: 400px;" /></a>
+<div class="section" id="id1">
+<h4>Coordinate directions<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h4>
+<p>We use an RAS (right, anterior, superior) coordinate system where the “x” direction points from left to right, the “y” direction points from posterior to anterior, and the “z” direction points from inferior to superior.</p>
+</div>
+<div class="section" id="id2">
+<h4>Coordinate origin<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h4>
+<p>In the common marmoset, the horizontal zero plane is defined as the plane passing through the lower margin of the orbit and the center of the external auditory meatus (see figure) (note you cannot see bregma on marmoset, it is fused too tightly to see). In an imaging apparatus, the skull is fixed through the ears, so this is a good choice. The anteroposterior zero plane is defined as the plane perpendicular to the horizontal zero plane which passes the centers of the external auditory meati. The left-right zero plane is the midsagittal plane (Saavedra and Mazzuchelli, 1969; Stephan et al., 1980).</p>
+</div>
+<div class="section" id="id3">
+<h4>Other information<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h4>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>On our CSH dropbox system the atlas data is located here: <a class="reference external" href="https://www.dropbox.com/sh/70hg40e8b3ro9vx/AACk05Hm-BFGbMD5NIQolqtxa?dl=0">https://www.dropbox.com/sh/70hg40e8b3ro9vx/AACk05Hm-BFGbMD5NIQolqtxa?dl=0</a>
+with images:</p>
+<p>Nissl reference: bma-1-nissl.nii.gz</p>
+<p>MRI reference: bma-1-mri.nii.gz</p>
+<p>Atlas: bma-1-region_seg.nii.gz</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We have built a population average image for males and females, which is located on CSH at /nfs/data/main/M38/marmoset_ccf</p>
+</div>
+</div>
+</div>
+<div class="section" id="human-atlas">
+<h3>Human atlas<a class="headerlink" href="#human-atlas" title="Permalink to this heading"></a></h3>
+<p>We use the Montreal Neurological Institute - International Consortium for Brain Mapping (MNI-ICBM) coordinate system, which is described here: <a class="reference external" href="https://www.mcgill.ca/bic/software/tools-data-analysis/anatomical-mri/atlases/icbm152-non-linear">https://www.mcgill.ca/bic/software/tools-data-analysis/anatomical-mri/atlases/icbm152-non-linear</a> .  An example is shown below.</p>
+<a class="reference internal image-reference" href="_images/marmoset_coords_2.png"><img alt="_images/marmoset_coords_2.png" src="_images/marmoset_coords_2.png" style="width: 400px;" /></a>
+<div class="section" id="id4">
+<h4>Coordinate directions<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h4>
+<p>The atlas is based on the Talarach Tournoux coordinate system which is RAS.  “x” points from left to right, “y” points from posterior to anterior (posterior commissure to anterior commissure), and “z” points from inferior to superior.</p>
+</div>
+<div class="section" id="id5">
+<h4>Coordinate origin<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h4>
+<p>The coordinate origin is 4 millimeters above the center of the anterior commissure.</p>
+<p>Details: these points are intersection of planes.  AC to PC defines a line. Left right defines a line. These two lines define a plane.</p>
+<p>Midsagittal plane defines another plane.</p>
+<p>The intersection defines a line, and the left right center on this line gives the origin.</p>
+</div>
+<div class="section" id="voxel-size">
+<h4>Voxel size<a class="headerlink" href="#voxel-size" title="Permalink to this heading"></a></h4>
+<p>Standard voxel size is 1mm isotropic, but other possibilities are available.</p>
+</div>
+<div class="section" id="id6">
+<h4>Other information<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h4>
+<p>Currently can be downloaded form the web at the above link <a class="reference external" href="https://www.mcgill.ca/bic/software/tools-data-analysis/anatomical-mri/atlases/icbm152-non-linear">https://www.mcgill.ca/bic/software/tools-data-analysis/anatomical-mri/atlases/icbm152-non-linear</a> .</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Another possibility is MNI-Colin27 and not ICBM152 nonlinear.
+<a class="reference external" href="https://www.mcgill.ca/bic/software/tools-data-analysis/anatomical-mri/atlases/colin-27-2008">https://www.mcgill.ca/bic/software/tools-data-analysis/anatomical-mri/atlases/colin-27-2008</a></p>
+<p>Note that the difference is the 4mm offset.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="input-space">
+<h2>Input space<a class="headerlink" href="#input-space" title="Permalink to this heading"></a></h2>
+<p>The input space describes the coordinate system of 2D serial section images to be registered.  This is the internal structure of the pipeline, but preprocessors may be used to convert data with other structures.  For example, point sets may be described by the integer index of a pixel in an image, rather than a location with units of length.  A converter is necessary in this case (for example <a class="reference internal" href="emlddmm.html#emlddmm.convert_points_from_json" title="emlddmm.convert_points_from_json"><code class="xref py py-func docutils literal notranslate"><span class="pre">emlddmm.convert_points_from_json()</span></code></a>)</p>
+<div class="section" id="id7">
+<h3>Coordinate directions<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<p>The “x” coordinate points from left to right (i.e. from the left side to the right side of a 2D image displayed on a screen).  The “y” coordinate points from up to down.  The “z” coordinate points from the first acquired slice to the last acquired slice.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This convention does not reference any anatomy, only the camera. This is chosen because sections could have any orientation (coronal, sagittal, etc.).</p>
+</div>
+</div>
+<div class="section" id="id8">
+<h3>Coordinate origin<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
+<p>The xy origin will always be in the center of the image.  i.e. On a given slice if you find the average “x” coordinate, or the average “y” coordinate, it will be 0.  The z coordinate origin is also chosen such that slices are centered for this dataset: the average of the z coordinate for the first and last slices is zero.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Motivation for this choice is that we can pad images symmetrically without changing the origin, and rotation about this origin is more numerically stable than rotation around one corner.</p>
+</div>
+</div>
+<div class="section" id="id9">
+<h3>Voxel size<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
+<p>Voxel size is an input parameter to the pipeline (e.g. stored in json sidecar files for 2D images, or in vtk headers for 3D images).  Our convention is to use units of microns.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In a typical workflow, an image is created with resolution 0.46umx0.46micron, with a slice thickness of 10 micron.  For registration purposes these are typically downsampled by a factor of 32 in the x and y directions, making the resolution 14.72um before they are input to the pipeline.</p>
+</div>
+</div>
+</div>
+<div class="section" id="registered-space">
+<h2>Registered space<a class="headerlink" href="#registered-space" title="Permalink to this heading"></a></h2>
+<p>In our workflow, any time a 3D to sequence of 2D slices map is calculated, a new registered space is created (see for example <a class="reference internal" href="introduction.html#twodsections"><span class="std std-ref">here</span></a>).  A sequence of rigid transformations are applied to each 2D slice to match the general shape of a deformed reference 3D image.  This effectively defines a 3D coordinate space.</p>
+<div class="section" id="id10">
+<h3>Coordinate directions<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
+<p>Same as <a class="reference internal" href="#inputdirection"><span class="std std-ref">input space directions</span></a>.</p>
+</div>
+<div class="section" id="id11">
+<h3>Coordinate origin<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
+<p>Same as <a class="reference internal" href="#inputorigin"><span class="std std-ref">input space origin</span></a>.</p>
+</div>
+<div class="section" id="id12">
+<h3>Voxel size<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
+<p>Same as <a class="reference internal" href="#inputvoxel"><span class="std std-ref">input space voxel size</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Once transformations have been computed, high resolution data is transformed into registered space for display on the web or other viewers.  This high resolution data uses its native voxel size (typically 0.46 microns).</p>
+</div>
+</div>
+<div class="section" id="the-non-uniqueness-of-registered-space">
+<h3>The non-uniqueness of registered space<a class="headerlink" href="#the-non-uniqueness-of-registered-space" title="Permalink to this heading"></a></h3>
+<p>Our mapping algorithm enforces alignment between data in the common space, and data in the input space.  This sequence of transforms can be factored to define a space in the “middle”. This is a factorization of transformations problem.  Just like matrix factorizations are not unique without constraints, the data does not uniquely define a registered space.  Rather, we use several heuristics to define a space that is a “minimally distorted” version of the common space.  The general idea is that any component of the transform that can be represented as a sequence of 2D transforms, should be represented that way, rather than as part of a 3D transform.  In particular</p>
+<ul class="simple">
+<li><p>We want no translation in the xy direction of the 3D affine transformation. (this is enforced by our pipeline)</p></li>
+<li><p>We want no shear perpendicular to the z axis in the 3D transformation. (this can be enforced by chosing to limit the affine transformation to rigid, or rigid plus scale)</p></li>
+<li><p>After applying our affine transform we want the up vector to still point up, when projected into the slice plane. (implemented with the <code class="code docutils literal notranslate"><span class="pre">up_vector</span></code> parameter in <a class="reference internal" href="emlddmm.html#emlddmm.emlddmm" title="emlddmm.emlddmm"><code class="xref py py-func docutils literal notranslate"><span class="pre">emlddmm.emlddmm()</span></code></a>)</p></li>
+</ul>
+</div>
+<div class="section" id="id13">
+<h3>Other information<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
+<p>While registered space uses the same coordinate system conventions as input space, the set of voxel locations images should be sampled on is likely to be different.  One example occurs when our atlas has its origin at the bregma point on the skull, but our input data has its origin in the center of the brain tissue.  Due to our factorization conventions described <a class="reference internal" href="#nonuniqueness"><span class="std std-ref">above</span></a>, tissue in registered space will no longer be centered at the origin.</p>
+<p>In a typical situation, our input histology is sectioned in either the coronal, sagittal, or transverse plane, and we map it to a well characterized atlas.  In these situations, the origin in xy for the registered space can be interpretted with respect to the atlas origin, and will correspond to the origin for two of the 3 axes in the atlas.    We enumerate sevaral cases below and provide some information explicitly.</p>
+<div class="section" id="mouse-with-coronal-sections">
+<h4>Mouse with coronal sections<a class="headerlink" href="#mouse-with-coronal-sections" title="Permalink to this heading"></a></h4>
+<p>Using our <a class="reference internal" href="#mouse-atlas">Mouse atlas</a>, and a coronally sectioned dataset in <a class="reference internal" href="#input-space">Input space</a>, input space x corresponds to the right left axis, and input space y corresponds to the dorsal ventral axis.</p>
+<p>Therefore, the x=0 point in registered space corresponds to the anatomy at the y=0 point in the atlas, and the y=0 point in registered space corresponds to the anatomy at the x=0 point in the atlas.</p>
+<p>When reconstructing imaging data in this space we chose a set of sample points for voxels that will cover the anatomy.  Therefore, we sample x starting at -5695.0 um, ending at 5695.06, and using 24762 samples equally spaced by 0.46 microns.  Similarly, we sample y starting at -870.0 um, ending at 7120.2 um, and using 17371 samples equally spaced by 0.46 microns.</p>
+<p>This convention allows us to convert between spatial locations and pixel indices (row=i,col=j, starting at 0), using the follow formulas:</p>
+<div class="math">
+<p><img src="_images/math/210599670232d1be4b14261ebaf3f4f035dd3b75.png" alt="i &amp;= \text{round}[(y - (-870.0))/0.46]\\
+j &amp;= \text{round}[(x - (-5695.0))/0.46]\\
+y &amp;= 0.46 i + (-870.0)\\
+x &amp;= 0.46 j + (-5695.0)"/></p>
+</div></div>
+<div class="section" id="mouse-with-sagittal-sections">
+<h4>Mouse with sagittal sections<a class="headerlink" href="#mouse-with-sagittal-sections" title="Permalink to this heading"></a></h4>
+<p>Using our <a class="reference internal" href="#mouse-atlas">Mouse atlas</a>, and a sagittaly sectioned dataset in <a class="reference internal" href="#input-space">Input space</a>, input space x corresponds to the anterior posterior axis (note the nose will be on the left), and input space y corresponds to the dorsal ventral axis.</p>
+<p>Therefore, the x=0 point in registered space corresponds to the anatomy at the z=0 point in the atlas, and the y=0 point in registered space corresponds to the anatomy at the x=0 point in the atlas.</p>
+<p>When reconstructing imaging data in this space we chose a set of sample points for voxels that will cover the anatomy.  Therefore, we sample x starting at -7970.0 um, ending at 5220.04, and using 28675 samples equally spaced by 0.46 microns.  Similarly, we sample y starting at -870.0 um, ending at 7120.2 um, and using 17371 samples equally spaced by 0.46 microns.</p>
+<p>This convention allows us to convert between spatial locations and pixel indices (row=i,col=j, starting at 0), using the follow formulas:</p>
+<div class="math">
+<p><img src="_images/math/a40277a20e84ec68197c381c2092ca7adfbefc6f.png" alt="i &amp;= \text{round}[(y - (-870.0))/0.46]\\
+j &amp;= \text{round}[(x - (-7970.0))/0.46]\\
+y &amp;= 0.46 i + (-870.0)\\
+x &amp;= 0.46 j + (-7970.0)"/></p>
+</div></div>
+<div class="section" id="mouse-with-transverse-sections">
+<h4>Mouse with transverse sections<a class="headerlink" href="#mouse-with-transverse-sections" title="Permalink to this heading"></a></h4>
+<p>Using our <a class="reference internal" href="#mouse-atlas">Mouse atlas</a>, and a transverse sectioned dataset in <a class="reference internal" href="#input-space">Input space</a>, input space x corresponds to the anterior posterior axis (CHECK!), and input space y corresponds to the right left axis.</p>
+<p>Therefore, the x=0 point in registered space corresponds to the anatomy at the z=0 point in the atlas, and the y=0 point in registered space corresponds to the anatomy at the y=0 point in the atlas.</p>
+<p>When reconstructing imaging data in this space we chose a set of sample points for voxels that will cover the anatomy.  Therefore, we sample x starting at -7970.0 um, ending at 5220.04, and using 28675 samples equally spaced by 0.46 microns.  Similarly, we sample y starting at -5695.0 um, ending at 5695.09 um, and using 24762 samples equally spaced by 0.46 microns.</p>
+<p>This convention allows us to convert between spatial locations and pixel indices (row=i,col=j, starting at 0), using the follow formulas:</p>
+<div class="math">
+<p><img src="_images/math/f6237a8314cbd211977152a6a59c23c009d222bd.png" alt="i &amp;= \text{round}[(y - (-5695.0))/0.46]\\
+j &amp;= \text{round}[(x - (-7970.0))/0.46]\\
+y &amp;= 0.46 i + (-5695.0)\\
+x &amp;= 0.46 j + (-7970.0)"/></p>
+</div></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="file_formats.html" class="btn btn-neutral float-right" title="File Formats" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Daniel Tward.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

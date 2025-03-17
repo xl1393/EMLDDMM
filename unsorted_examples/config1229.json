@@ -1,0 +1,18 @@
+{
+    "n_iter":[500,200],
+    "downI":[[8,8,4],[4,4,2]],
+    "downJ":[[4,4,2],[2,2,1]],    
+    "sigmaR":[5e6],
+    "ev":[1e-4],
+    "eA":[1e5],        
+    "priors":[[0.9,0.05,0.05]],
+    "update_muA":[0],
+    "update_muB":[0],
+    "update_sigmaM":[0],
+    "update_sigmaA":[0],
+    "update_sigmaB":[0],
+    "order":[3],
+    "n_draw":[50],
+    "n_e_step":[3],    
+    "v_start":[200,0]
+}

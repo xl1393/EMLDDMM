@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>transformation_graph_v01 module &mdash; GDM 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> GDM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coordinate_systems.html">Coordinate Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="file_formats.html">File Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input_specification.html">Input specification via Transformation Graph Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output_specification.html">Output Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">Work in progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GDM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>transformation_graph_v01 module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/transformation_graph_v01.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="module-transformation_graph_v01">
+<span id="transformation-graph-v01-module"></span><h1>transformation_graph_v01 module<a class="headerlink" href="#module-transformation_graph_v01" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="transformation_graph_v01.Graph">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">transformation_graph_v01.</span></span><span class="sig-name descname"><span class="pre">Graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spaces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transformation_graph_v01.html#Graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#transformation_graph_v01.Graph" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>graph object with nodes and edges representing image spaces and transformations between them.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transformation_graph_v01.Graph.spaces">
+<span class="sig-name descname"><span class="pre">spaces</span></span><a class="headerlink" href="#transformation_graph_v01.Graph.spaces" title="Permalink to this definition"></a></dt>
+<dd><p>Integer keys map to the space name and the domain of the corresponding image space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transformation_graph_v01.Graph.adj">
+<span class="sig-name descname"><span class="pre">adj</span></span><a class="headerlink" href="#transformation_graph_v01.Graph.adj" title="Permalink to this definition"></a></dt>
+<dd><p>Adjacency list. List of dictionaries holding the transforms needed to map between connecting spaces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="transformation_graph_v01.Graph.BFS">
+<span class="sig-name descname"><span class="pre">BFS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transformation_graph_v01.html#Graph.BFS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#transformation_graph_v01.Graph.BFS" title="Permalink to this definition"></a></dt>
+<dd><p>Breadth first search</p>
+<p>a modified version of BFS that stores predecessor
+of each vertex in array pred and its distance from source in array dist</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> (<em>int</em>) – int value given by corresponding src in spaces dict</p></li>
+<li><p><strong>target</strong> (<em>int</em>) – int value given by corresponding target in spaces dict</p></li>
+<li><p><strong>v</strong> (<em>int</em>) – length of spaces dict</p></li>
+<li><p><strong>pred</strong> (<em>list</em><em> of </em><em>ints</em>) – stores predecessor of vertex i at pred[i]</p></li>
+<li><p><strong>dist</strong> (<em>list</em><em> of </em><em>ints</em>) – stores distance (by number of vertices) of vertex i from source vertex</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>bool</em> – True if a path from src to target is found and False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="transformation_graph_v01.Graph.add_edge">
+<span class="sig-name descname"><span class="pre">add_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transforms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transformation_graph_v01.html#Graph.add_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#transformation_graph_v01.Graph.add_edge" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="transformation_graph_v01.Graph.add_space">
+<span class="sig-name descname"><span class="pre">add_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">space_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transformation_graph_v01.html#Graph.add_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#transformation_graph_v01.Graph.add_space" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="transformation_graph_v01.Graph.map_image">
+<span class="sig-name descname"><span class="pre">map_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transformation_graph_v01.html#Graph.map_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#transformation_graph_v01.Graph.map_image" title="Permalink to this definition"></a></dt>
+<dd><p>Map an image from source space to target space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src_space</strong> (<em>str</em>) – name of source space</p></li>
+<li><p><strong>image</strong> (<em>array</em>) – </p></li>
+<li><p><strong>target_space</strong> (<em>str</em>) – name of target space</p></li>
+<li><p><strong>transforms</strong> (<em>list</em><em> of </em><em>emlddmm Transform objects</em>) – </p></li>
+<li><p><strong>xy_shift</strong> (<em>torch Tensor</em>) – R^2 vector. Applies a translation in xy for reconstructing in registered space.</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – keword args to be passed to emlddmm interpolation, which will be passed to torch grid sample</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>image</strong> (<em>array</em>) – transformed image data</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The xy_shift optional argument is necessary when reconstructing in registered space or when the origins of the source and target space
+are far apart, e.g. one defines the origin at bregma and the other at the image center. The problem arises because the xy translation is
+contained entirely in the 2D affine transforms</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="transformation_graph_v01.Graph.map_image_">
+<span class="sig-name descname"><span class="pre">map_image_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transformation_graph_v01.html#Graph.map_image_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#transformation_graph_v01.Graph.map_image_" title="Permalink to this definition"></a></dt>
+<dd><p>Map an image from source space to target space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src_space</strong> (<em>str</em>) – name of source space</p></li>
+<li><p><strong>image</strong> (<em>array</em>) – </p></li>
+<li><p><strong>target_space</strong> (<em>str</em>) – name of target space</p></li>
+<li><p><strong>transforms</strong> (<em>list</em><em> of </em><em>emlddmm Transform objects</em>) – </p></li>
+<li><p><strong>xy_shift</strong> (<em>torch Tensor</em>) – R^2 vector. Applies a translation in xy for reconstructing in registered space.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>image</strong> (<em>array</em>) – transformed image data</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The xy_shift optional argument is necessary when reconstructing in registered space or when the origins of the source and target space
+are far apart, e.g. one defines the origin at bregma and the other at the image center. The problem arises because the xy translation is
+contained entirely in the 2D affine transforms</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="transformation_graph_v01.Graph.map_points">
+<span class="sig-name descname"><span class="pre">map_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_locations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transformation_graph_v01.html#Graph.map_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#transformation_graph_v01.Graph.map_points" title="Permalink to this definition"></a></dt>
+<dd><p>Applies a sequence of transforms to points in source space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>srs_space</strong> (<em>str</em>) – name of the source space</p></li>
+<li><p><strong>transforms</strong> (<em>list</em><em> of </em><em>emlddmm Transform objects</em>) – </p></li>
+<li><p><strong>xy_shift</strong> (<em>torch Tensor</em>) – R^2 vector. Applies a translation in xy for reconstructing in registered space.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>X</strong> (<em>torch tensor</em>) – transformed points</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The xy_shift optional argument is necessary when reconstructing in registered space or when the origins of the source and target space
+are far apart, e.g. one defines the origin at bregma and the other at the image center. The problem arises because the xy translation is
+contained entirely in the 2D affine transforms.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>From daniel.  Mapping from 2D slices to anything is fine.  The shape will always be the 2D slices.  This is used when mapping imaging data to a 2D slice.
+Mapping to a 2D slice is harder. But I think we can do it somehow with nearest neighbor interpolation.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="transformation_graph_v01.Graph.map_points_">
+<span class="sig-name descname"><span class="pre">map_points_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transformation_graph_v01.html#Graph.map_points_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#transformation_graph_v01.Graph.map_points_" title="Permalink to this definition"></a></dt>
+<dd><p>Applies a sequence of transforms to points in source space. If mapping to an image series, maps to the registered domain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>srs_space</strong> (<em>str</em>) – name of the source space</p></li>
+<li><p><strong>transforms</strong> (<em>list</em><em> of </em><em>emlddmm Transform objects</em>) – </p></li>
+<li><p><strong>xy_shift</strong> (<em>torch Tensor</em>) – R^2 vector. Applies a translation in xy for reconstructing in registered space.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>X</strong> (<em>torch tensor</em>) – transformed points</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The xy_shift optional argument is necessary when reconstructing in registered space or when the origins of the source and target space
+are far apart, e.g. one defines the origin at bregma and the other at the image center. The problem arises because the xy translation is
+contained entirely in the 2D affine transforms.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="transformation_graph_v01.Graph.merge">
+<span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_graph</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transformation_graph_v01.html#Graph.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#transformation_graph_v01.Graph.merge" title="Permalink to this definition"></a></dt>
+<dd><p>Merge two graphs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_graph</strong> (<em>emlddmm Graph object</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>graph</strong> (<em>emlddmm Graph object</em>) – Current graph merged with the new graph.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="transformation_graph_v01.Graph.shortest_path">
+<span class="sig-name descname"><span class="pre">shortest_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transformation_graph_v01.html#Graph.shortest_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#transformation_graph_v01.Graph.shortest_path" title="Permalink to this definition"></a></dt>
+<dd><p>Find Shortest Path</p>
+<p>Finds the shortest path between target and src in the adjacency list and prints its length</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> (<em>int</em>) – src value given by corresponding source in spaces dict</p></li>
+<li><p><strong>target</strong> (<em>int</em>) – int value given by corresponding source in spaces dict</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>path</strong> (<em>list of ints</em>) – path from target to src using integer values of the adjacency list vertices. Integers can be converted to space names by the spaces dict.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">adj</span> <span class="o">=</span> <span class="p">[{</span><span class="mi">1</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;outputs/MRI/HIST_REGISTERED_to_MRI/&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">)},</span>
+<span class="gp">... </span>       <span class="p">{</span><span class="mi">2</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;outputs/CCF/MRI_to_CCF/&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">),</span> <span class="mi">0</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;outputs/MRI/HIST_REGISTERED_to_MRI/&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">)},</span>
+<span class="gp">... </span>       <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;outputs/CCF/MRI_to_CCF/&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">)},</span>
+<span class="gp">... </span>       <span class="p">{}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">find_shortest_path</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="go">Shortest path length is: 2</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="go">[0,1,2]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">transformation_graph</span><span class="o">.</span><span class="n">find_shortest_path</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="go">Given target and source are not connected</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="transformation_graph_v01.Graph.transforms">
+<span class="sig-name descname"><span class="pre">transforms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transformation_graph_v01.html#Graph.transforms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#transformation_graph_v01.Graph.transforms" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of transforms following a path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>list</em>) – A path as returned by the self.shortest_path function.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>transforms</strong> (<em>list</em>) – A list of Transform objects defined in emlddmm.py.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transformation_graph_v01.graph_reconstruct">
+<span class="sig-prename descclassname"><span class="pre">transformation_graph_v01.</span></span><span class="sig-name descname"><span class="pre">graph_reconstruct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_fnames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transformation_graph_v01.html#graph_reconstruct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#transformation_graph_v01.graph_reconstruct" title="Permalink to this definition"></a></dt>
+<dd><p>Apply Transformation</p>
+<p>Applies affine matrix and velocity field transforms to map source points to target points. Saves displacement field from source points to target points
+(i.e. difference between transformed coordinates and input coordinates), and determinant of Jacobian for 3d source spaces. Also saves transformed image in vtk format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graph</strong> (<em>emlddmm Graph object</em>) – </p></li>
+<li><p><strong>out</strong> (<em>str</em>) – path to registration outputs parent directory</p></li>
+<li><p><strong>I</strong> (<em>emlddmm Image</em>) – </p></li>
+<li><p><strong>target_space</strong> (<em>str</em>) – name of the space to which image I will be transformed.</p></li>
+<li><p><strong>target_fnames</strong> (<em>list</em>) – list of file names; only necessary if target is a series of 2d slices.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<p>Check why the registered space histology is not working. (march 27, 2023)
+I think the issue is that there is actually no time to do it.
+If I say to reconstruct one space to itself, then it says not connected and gives an error.
+There needs to be another way.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transformation_graph_v01.graph_reconstruct_">
+<span class="sig-prename descclassname"><span class="pre">transformation_graph_v01.</span></span><span class="sig-name descname"><span class="pre">graph_reconstruct_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_fnames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transformation_graph_v01.html#graph_reconstruct_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#transformation_graph_v01.graph_reconstruct_" title="Permalink to this definition"></a></dt>
+<dd><p>Apply Transformation</p>
+<p>Applies affine matrix and velocity field transforms to map source points to target points. Saves displacement field from source points to target points
+(i.e. difference between transformed coordinates and input coordinates), and determinant of Jacobian for 3d source spaces. Also saves transformed image in vtk format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graph</strong> (<em>emlddmm Graph object</em>) – </p></li>
+<li><p><strong>out</strong> (<em>str</em>) – path to registration outputs parent directory</p></li>
+<li><p><strong>I</strong> (<em>emlddmm Image</em>) – </p></li>
+<li><p><strong>target_space</strong> (<em>str</em>) – name of the space to which image I will be transformed.</p></li>
+<li><p><strong>target_fnames</strong> (<em>list</em>) – list of file names; only necessary if target is a series of 2d slices.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-todo admonition" id="id2">
+<p class="admonition-title">Todo</p>
+<p>Check why the registered space histology is not working. (march 27, 2023)
+I think the issue is that there is actually no time to do it.
+If I say to reconstruct one space to itself, then it says not connected and gives an error.
+There needs to be another way.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transformation_graph_v01.main">
+<span class="sig-prename descclassname"><span class="pre">transformation_graph_v01.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/transformation_graph_v01.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#transformation_graph_v01.main" title="Permalink to this definition"></a></dt>
+<dd><p>Main</p>
+<p>Main function for parsing input arguments, calculating registrations and applying transformations.</p>
+<p class="rubric">Example</p>
+<p>$ python transformation_graph.py –infile GDMInput.json</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transformation_graph_v01.run_registrations">
+<span class="sig-prename descclassname"><span class="pre">transformation_graph_v01.</span></span><span class="sig-name descname"><span class="pre">run_registrations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transformation_graph_v01.html#run_registrations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#transformation_graph_v01.run_registrations" title="Permalink to this definition"></a></dt>
+<dd><p>Run Registrations</p>
+<p>Runs a sequence of registrations given by reg_list. Saves transforms, qc images, reconstructed images,
+displacement fields, and determinant of Jacobian of displacements. Also builds and writes out the transform graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>reg_list</strong> (<em>list</em><em> of </em><em>dicts</em>) – each dict in reg_list specifies the source image path, target image path,
+source and target space names, registration configuration settings, and output directory.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>reg_graph</strong> (<em>emlddmm graph</em>)</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">reg_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;registration&#39;</span><span class="p">:[[</span><span class="s1">&#39;CCF&#39;</span><span class="p">,</span><span class="s1">&#39;average_template_50&#39;</span><span class="p">],[</span><span class="s1">&#39;MRI&#39;</span><span class="p">,</span><span class="s1">&#39;masked&#39;</span><span class="p">]],</span>
+<span class="go">                 &#39;source&#39;: &#39;/path/to/average_template_50.vtk&#39;,</span>
+<span class="go">                 &#39;target&#39;: &#39;/path/to/HR_NIHxCSHL_50um_14T_M1_masked.vtk&#39;,</span>
+<span class="go">                 &#39;config&#39;: &#39;/path/to/configMD816_MR_to_CCF.json&#39;,</span>
+<span class="go">                 &#39;output&#39;: &#39;outputs/example_output&#39;},</span>
+<span class="go">                {&#39;registration&#39;:[[&#39;MRI&#39;,&#39;masked&#39;], [&#39;HIST&#39;,&#39;Nissl&#39;]],</span>
+<span class="go">                 &#39;source&#39;: &#39;/path/to/HR_NIHxCSHL_50um_14T_M1_masked.vtk&#39;,</span>
+<span class="go">                 &#39;target&#39;: &#39;/path/to/MD816_STIF&#39;,</span>
+<span class="go">                 &#39;config&#39;: &#39;/path/to/configMD816_Nissl_to_MR.json&#39;,</span>
+<span class="go">                 &#39;output&#39;: &#39;outputs/example_output&#39;}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">run_registrations</span><span class="p">(</span><span class="n">reg_list</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Daniel Tward.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
