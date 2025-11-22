@@ -15,7 +15,9 @@ Running the unit tests::
 
 import pytest
 import sys
-sys.path.insert(0, '/home/brysongray/emlddmm')
+import os
+# Add the project root to sys.path so we can import the emlddmm package
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import emlddmm
 import numpy as np
 import os
